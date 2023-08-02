@@ -1,0 +1,7 @@
+dbUser: ""
+password: ""
+port:
+host: ""
+dbName: ""
+accessTokenSecret: ""
+adminPassword: ""
