@@ -2,3 +2,4 @@ vendor/
 bookhive
 config.yaml
 todo
+*.css.map
