@@ -9,3 +9,14 @@ type YamlConfig struct {
 	AccessTokenSecret string `yaml:"accessTokenSecret"`
 	AdminPassword     string `yaml:"adminPassword"`
 }
+
+type UserData struct {
+	Id       int
+	Username string
+	Admin    int
+	Hash     string
+}
+
+type Err struct {
+	ErrMsg string
+}

@@ -1,11 +1,11 @@
 package controller
 
 import (
-	"net/http"
 	"BookHive/pkg/views"
+	"net/http"
 )
 
-func HomePage(writer http.ResponseWriter, request *http.Request) {
+func HomePage(w http.ResponseWriter, r *http.Request) {
 	t := views.HomePage()
-	t.Execute(writer, nil)
+	t.Execute(w, nil)
 }
