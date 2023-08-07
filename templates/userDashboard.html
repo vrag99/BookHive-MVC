@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    {{template "headers.html"}}
+  </head>
+
+  <body>
+    <div class="container">
+      <nav>
+        <ol class="breadcrumb p-3 rounded-3">
+          <li class="breadcrumb-item">
+            <a class="link-body-emphasis" href="/">
+              <i class="bi bi-house-door-fill"></i>
+              <span class="visually-hidden">Home</span>
+            </a>
+          </li>
+          <li class="breadcrumb-item">
+            <a
+              class="link-body-emphasis fw-semibold text-decoration-none"
+              href="/userDashboard"
+            >
+              {{ .Username }}'s dashboard
+            </a>
+          </li>
+          {{ if eq .State "issued" }}
+          <li class="breadcrumb-item active">
+            <a
+              class="link-body-emphasis fw-semibold text-decoration-none"
+              href="/userDashboard/issued"
+              >issued books</a
+            >
+          </li>
+          {{ end }} 
+          {{ if eq .State "requested" }}
+          <li class="breadcrumb-item active">
+            <a
+              class="link-body-emphasis fw-semibold text-decoration-none"
+              href="/userDashboard/requested"
+              >requested books</a
+            >
+          </li>
+          {{ end }} 
+          {{ if eq .State "to-be-returned" }}
+          <li class="breadcrumb-item active">
+            <a
+              class="link-body-emphasis fw-semibold text-decoration-none"
+              href="/userDashboard/to-be-returned"
+              >to-be-returned books</a
+            >
+          </li>
+          {{ end }}
+
+          <li class="ms-auto">
+            <a href="/logout" class="btn btn-dark btn-sm">Logout</a>
+          </li>
+        </ol>
+      </nav>
+    </div>
+
+    <div class="container">
+      <form class="bg-body-tertiary pt-3 rounded-3">
+        <div class="row">
+          <div class="col-md-3 mt-1 fs-4 text-center">View type</div>
+          <div class="col-md-8 text-center">
+            <select
+              class="form-select fs-5 text-center mb-3"
+              id="viewMode"
+              aria-label=".form-select-lg example"
+            >
+              <option value="select view mode" selected>
+                select view mode
+              </option>
+              <option value="available">available</option>
+              <option value="requested">requested</option>
+              <option value="issued">issued</option>
+              <option value="to-be-returned">to be returned</option>
+            </select>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <div class="container mt-4">
+      <h2 class="text-center mt-4 mb-3 fw-bold text-uppercase">
+        {{ .State }} Books
+      </h2>
+      {{ if eq .State "available" }}
+      <table class="table text-center table-hover align-middle">
+        <thead>
+          <th>Book Name</th>
+          <th>Available Quantity</th>
+          <th>Issue</th>
+        </thead>
+        {{ range .Books }}
+        <tr>
+          <td>{{ .Name }}</td>
+          <td>{{ .AvailableQty }}</td>
+          <td>
+            <a
+              href="/userDashboard/request/{{ .Id }}"
+              class="btn btn-dark btn-sm"
+              ><i class="bi bi-journal-plus"></i
+            ></a>
+          </td>
+        </tr>
+        {{ end }}
+      </table>
+      {{ end }} {{ if eq .State "requested" }}
+      <table class="table text-center table-hover align-middle">
+        <thead>
+          <th>Book ID</th>
+          <th>Book Name</th>
+        </thead>
+        {{ range .Books }}
+        <tr>
+          <td>{{ .Id }}</td>
+          <td>{{ .Name }}</td>
+        </tr>
+        {{end}}
+      </table>
+      {{end}} {{ if eq .State "issued" }}
+      <table class="table text-center table-hover align-middle">
+        <thead>
+          <th>Book ID</th>
+          <th>Book Name</th>
+          <th>Request Return</th>
+        </thead>
+        {{ range .Books }}
+        <tr>
+          <td>{{ .Id }}</td>
+          <td>{{ .Name }}</td>
+          <td>
+            <a
+              href="/userDashboard/req-return/{{ .Id }}"
+              class="btn btn-dark btn-sm"
+              ><i class="bi bi-journal-check"></i
+            ></a>
+          </td>
+        </tr>
+        {{end}}
+      </table>
+      {{end}} {{ if eq .State "to-be-returned" }}
+      <table class="table text-center table-hover align-middle">
+        <thead>
+          <th>Book ID</th>
+          <th>Book Name</th>
+        </thead>
+        {{ range.Books }}
+        <tr>
+          <td>{{ .Id }}</td>
+          <td>{{ .Name }}</td>
+        </tr>
+        {{end}}
+      </table>
+      {{end}}
+    </div>
+  </body>
+
+  <script>
+    var viewMode = document.getElementById("viewMode");
+    viewMode.addEventListener("change", () => {
+      var mode = viewMode.value;
+      var a = document.createElement("a");
+      if (mode == "available") a.href = "/userDashboard";
+      else a.href = `/userDashboard/${mode}`;
+      a.click();
+    });
+  </script>
+</html>

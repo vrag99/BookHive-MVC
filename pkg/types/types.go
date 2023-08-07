@@ -20,3 +20,17 @@ type UserData struct {
 type Err struct {
 	ErrMsg string
 }
+
+type Book struct {
+	Id int
+	Name string
+	Qty int
+	AvailableQty int
+}
+
+type UserViewData struct {
+	Username string
+	State string
+	Books []Book
+}
+

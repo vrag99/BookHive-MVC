@@ -27,12 +27,17 @@ func LoginPage(w http.ResponseWriter, r *http.Request) {
 		t := views.LoginPage()
 		t.Execute(w, data)
 	} else {
-		_ , err := utils.DecodeJWT(cookie.Value)
+		claims, err := utils.DecodeJWT(cookie.Value)
 		if err != nil {
 			fmt.Println("Invalid JWT")
 			panic(err)
 		} else {
-			authenticated(w, r)
+			isAdmin, _ := strconv.ParseBool(fmt.Sprintf("%d", claims["admin"]))
+			if isAdmin {
+				http.Redirect(w, r, "/adminDashboard", http.StatusSeeOther)
+			} else {
+				http.Redirect(w, r, "/userDashboard", http.StatusSeeOther)
+			}
 		}
 	}
 }
@@ -60,17 +65,16 @@ func LoginRequest(w http.ResponseWriter, r *http.Request) {
 		passMatch := utils.MatchPassword(password, usrData.Hash)
 		if passMatch {
 			token := utils.GenerateJWT(usrData)
-			
+
 			cookie := http.Cookie{
 				Name:    "access-token",
 				Value:   token,
 				Expires: time.Now().Add(48 * time.Hour),
 				Path:    "/",
 			}
-			
+
 			http.SetCookie(w, &cookie)
-			fmt.Println("setting cookie")
-			authenticated(w, r)
+			http.Redirect(w, r, "/userDashboard", http.StatusSeeOther)
 		} else {
 			loginErr(w, r, types.Err{ErrMsg: "Incorrect password"})
 		}
@@ -83,6 +87,6 @@ func loginErr(w http.ResponseWriter, r *http.Request, err types.Err) {
 	t.Execute(w, err)
 }
 
-func authenticated(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Authenticated, %s!", r.URL.Path[1:])
-}
+// func authenticated(w http.ResponseWriter, r *http.Request) {
+// 	fmt.Fprintf(w, "Authenticated, %s!", r.URL.Path[1:])
+// }

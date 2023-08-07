@@ -8,7 +8,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func Run(){
+func Run() {
 	r := mux.NewRouter()
 
 	// Serving the static files
@@ -18,15 +18,24 @@ func Run(){
 	r.Use(utils.ValidateJWT)
 
 	// Handling home page
-    r.HandleFunc("/", controller.HomePage).Methods("GET")
+	r.HandleFunc("/", controller.HomePage).Methods("GET")
 
 	// Handling register page
-    r.HandleFunc("/register", controller.RegisterPage).Methods("GET")
-    r.HandleFunc("/register", controller.SignUpRequest).Methods("POST")
+	r.HandleFunc("/register", controller.RegisterPage).Methods("GET")
+	r.HandleFunc("/register", controller.SignUpRequest).Methods("POST")
 
 	// Handling login page
 	r.HandleFunc("/login", controller.LoginPage).Methods("GET")
 	r.HandleFunc("/login", controller.LoginRequest).Methods("POST")
 
-    http.ListenAndServe(":3000", r)
+	// Handling UserDashboard
+	r.HandleFunc("/userDashboard", controller.UserViews).Methods("GET")
+	r.HandleFunc("/userDashboard/{viewMode}", controller.UserViews).Methods("GET")
+	r.HandleFunc("/userDashboard/request/{id}", controller.RequestBook).Methods("GET")
+	r.HandleFunc("/userDashboard/req-return/{id}", controller.RequestReturnBook).Methods("GET")
+
+	//Logout
+	r.HandleFunc("/logout", controller.Logout).Methods("GET")
+
+	http.ListenAndServe(":3000", r)
 }
