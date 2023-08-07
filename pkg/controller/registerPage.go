@@ -4,8 +4,8 @@ import (
 	"BookHive/pkg/models"
 	"BookHive/pkg/types"
 	"BookHive/pkg/views"
-	"BookHive/pkg/utils"
 	"net/http"
+	"reflect"
 	"time"
 )
 
@@ -22,42 +22,22 @@ func SignUpRequest(w http.ResponseWriter, r *http.Request) {
 	password := r.FormValue("password")
 	confirmPassword := r.FormValue("confirmPassword")
 	registerAsAdmin := r.FormValue("registerAsAdmin")
-	
-	var regAsAdmin bool
-	if registerAsAdmin == "on" {regAsAdmin = true} else {regAsAdmin = false}
 	adminPassword := r.FormValue("adminPassword")
 
-	config, err := utils.LoadConfig()
-	if err != nil {
-		panic(err)
-	}
-	ADMIN_PASS := config.AdminPassword
-
-	var adminApproved bool
-	if regAsAdmin {
-		if adminPassword == ADMIN_PASS {adminApproved = true} else {adminApproved = false}
+	var regAsAdmin bool
+	if registerAsAdmin == "on" {
+		regAsAdmin = true
 	} else {
-		adminApproved = false
+		regAsAdmin = false
 	}
 
-	db, _ := models.Connection()
-	rows := utils.ExecSql(db, "select * from users where username=?", username)
-	rows.Close()
-	defer db.Close()
-
-	if rows.Next() {
-		signUpErr(w, r, types.Err{ErrMsg: "User already exists"})
-	} else if password != confirmPassword {
-		signUpErr(w, r, types.Err{ErrMsg: "The passwords don't match"})
-	} else if regAsAdmin && !adminApproved {
-		signUpErr(w, r, types.Err{ErrMsg: "Incorrect admin passcode"})
+	err := models.AddUser(username, password, confirmPassword, regAsAdmin, adminPassword)
+	if !reflect.DeepEqual(err, types.Err{}) {
+		signUpErr(w, r, err)
 	} else {
-		hashedPassword := utils.HashPassword(password)
-		utils.ExecSql(db, "insert into users (username, admin, hash) values(?, ?, ?)", username, regAsAdmin, hashedPassword)
-
 		cookie := http.Cookie{
-			Name:    "access-token",
-			Value:   "",
+			Name: "access-token",
+			Value: "",
 			Expires: time.Now(),
 		}
 

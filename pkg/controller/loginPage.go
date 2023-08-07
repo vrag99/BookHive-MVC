@@ -5,6 +5,7 @@ import (
 	"BookHive/pkg/types"
 	"BookHive/pkg/utils"
 	"BookHive/pkg/views"
+	"reflect"
 	"strconv"
 
 	"fmt"
@@ -48,35 +49,23 @@ func LoginRequest(w http.ResponseWriter, r *http.Request) {
 	username := r.FormValue("username")
 	password := r.FormValue("password")
 
-	db, _ := models.Connection()
-	rows := utils.ExecSql(db, "select * from users where username=?", username)
-	defer rows.Close()
-	defer db.Close()
-
-	if !rows.Next() {
-		loginErr(w, r, types.Err{ErrMsg: "User doesn't exist"})
+	token, err, isAdmin := models.GetJWT(username, password)
+	if !reflect.DeepEqual(err, types.Err{}) {
+		loginErr(w, r, err)
 	} else {
-		var usrData types.UserData
-		err := rows.Scan(&usrData.Id, &usrData.Username, &usrData.Admin, &usrData.Hash)
-		if err != nil {
-			panic(err)
+
+		cookie := http.Cookie{
+			Name:    "access-token",
+			Value:   token,
+			Expires: time.Now().Add(48 * time.Hour),
+			Path:    "/",
 		}
 
-		passMatch := utils.MatchPassword(password, usrData.Hash)
-		if passMatch {
-			token := utils.GenerateJWT(usrData)
-
-			cookie := http.Cookie{
-				Name:    "access-token",
-				Value:   token,
-				Expires: time.Now().Add(48 * time.Hour),
-				Path:    "/",
-			}
-
-			http.SetCookie(w, &cookie)
-			http.Redirect(w, r, "/userDashboard", http.StatusSeeOther)
+		http.SetCookie(w, &cookie)
+		if isAdmin {
+			http.Redirect(w, r, "/adminDashboard", http.StatusSeeOther)
 		} else {
-			loginErr(w, r, types.Err{ErrMsg: "Incorrect password"})
+			http.Redirect(w, r, "/userDashboard", http.StatusSeeOther)
 		}
 	}
 
@@ -86,7 +75,3 @@ func loginErr(w http.ResponseWriter, r *http.Request, err types.Err) {
 	t := views.LoginPage()
 	t.Execute(w, err)
 }
-
-// func authenticated(w http.ResponseWriter, r *http.Request) {
-// 	fmt.Fprintf(w, "Authenticated, %s!", r.URL.Path[1:])
-// }
