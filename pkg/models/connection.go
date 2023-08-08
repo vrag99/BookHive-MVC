@@ -1,6 +1,7 @@
 package models
 
 import (
+	"BookHive/pkg/utils"
 	"context"
 	"database/sql"
 	"fmt"
@@ -10,7 +11,7 @@ import (
 )
 
 func dsn() (string, error) {
-	config, err := LoadConfig()
+	config, err := utils.LoadConfig()
 	if err != nil {
 		return "", err
 	}
@@ -50,6 +51,5 @@ func Connection() (*sql.DB, error) {
 		fmt.Printf("Error: '%s' occured while pinging DB", err)
 		return nil, err
 	}
-	fmt.Printf("Connected to DB successfully\n")
 	return db, err
 }

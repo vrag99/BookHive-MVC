@@ -9,7 +9,7 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 )
 
-func fetchBooks(rows *sql.Rows) []types.Book {
+func FetchBooks(rows *sql.Rows) []types.Book {
 	var fetchBooks []types.Book
 	for rows.Next() {
 		var book types.Book
@@ -36,7 +36,7 @@ func GetBooksOnViewMode(viewMode string, claims jwt.MapClaims) types.UserViewDat
 		`, claims["id"])
 		defer rows.Close()
 
-		books := fetchBooks(rows)
+		books := FetchBooks(rows)
 		return types.UserViewData{
 			Username: claims["username"].(string),
 			State: viewMode,
@@ -52,7 +52,7 @@ func GetBooksOnViewMode(viewMode string, claims jwt.MapClaims) types.UserViewDat
 		`, claims["id"])
 		defer rows.Close()
 
-		books := fetchBooks(rows)
+		books := FetchBooks(rows)
 		return types.UserViewData{
 			Username: claims["username"].(string),
 			State: viewMode,
@@ -68,7 +68,7 @@ func GetBooksOnViewMode(viewMode string, claims jwt.MapClaims) types.UserViewDat
 		`, claims["id"])
 		defer rows.Close()
 
-		books := fetchBooks(rows)
+		books := FetchBooks(rows)
 		return types.UserViewData{
 			Username: claims["username"].(string),
 			State: viewMode,
@@ -86,7 +86,7 @@ func GetBooksOnViewMode(viewMode string, claims jwt.MapClaims) types.UserViewDat
 		`, claims["id"])
 		defer rows.Close()
 
-		books := fetchBooks(rows)
+		books := FetchBooks(rows)
 		return types.UserViewData{
 			Username: claims["username"].(string),
 			State: viewMode,

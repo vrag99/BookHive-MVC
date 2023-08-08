@@ -34,3 +34,22 @@ type UserViewData struct {
 	Books []Book
 }
 
+type AdminViewData struct {
+	Username string
+	State string
+	Books []Book
+	Error string
+}
+
+type UserRequest struct {
+	Id int
+	Username string
+	BookName string
+}
+
+type UserRequestData struct {
+	Username string
+	State string
+	Requests []UserRequest
+}
+
