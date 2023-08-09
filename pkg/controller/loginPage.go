@@ -33,7 +33,7 @@ func LoginPage(w http.ResponseWriter, r *http.Request) {
 			fmt.Println("Invalid JWT")
 			panic(err)
 		} else {
-			isAdmin := claims["admin"] != 0
+			isAdmin := claims["admin"] != 0.0
 			if isAdmin {
 				http.Redirect(w, r, "/adminDashboard", http.StatusSeeOther)
 			} else {
