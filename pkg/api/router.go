@@ -37,7 +37,7 @@ func Run() {
 
 	// Handling AdminDashboard
 	r.HandleFunc("/adminDashboard", controller.AdminViews).Methods("GET")
-	r.HandleFunc("/adminDashboard", controller.AddBook).Methods("POST")
+	r.HandleFunc("/adminDashboard/addBook", controller.AddBook).Methods("POST")
 	r.HandleFunc("/adminDashboard/issue-requests", controller.IssueRequests).Methods("GET")
 	r.HandleFunc("/adminDashboard/issue-requests/{action}/{id}", controller.IssueRequests).Methods("GET")
 	r.HandleFunc("/adminDashboard/return-requests", controller.ReturnRequests).Methods("GET")

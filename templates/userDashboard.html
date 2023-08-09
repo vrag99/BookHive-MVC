@@ -2,6 +2,7 @@
 <html lang="en">
   <head>
     {{template "headers.html"}}
+    <script defer src="/static/scripts/userDashboard.js"></script>
   </head>
 
   <body>
@@ -68,12 +69,12 @@
               aria-label=".form-select-lg example"
             >
               <option value="select view mode" selected>
-                select view mode
+                -- select view mode --
               </option>
-              <option value="available">available</option>
-              <option value="requested">requested</option>
-              <option value="issued">issued</option>
-              <option value="to-be-returned">to be returned</option>
+              <option value="available">Available Books</option>
+              <option value="requested">Requested Books</option>
+              <option value="issued">Issued Books</option>
+              <option value="to-be-returned">To Be Returned Books</option>
             </select>
           </div>
         </div>
@@ -156,14 +157,4 @@
     </div>
   </body>
 
-  <script>
-    var viewMode = document.getElementById("viewMode");
-    viewMode.addEventListener("change", () => {
-      var mode = viewMode.value;
-      var a = document.createElement("a");
-      if (mode == "available") a.href = "/userDashboard";
-      else a.href = `/userDashboard/${mode}`;
-      a.click();
-    });
-  </script>
 </html>

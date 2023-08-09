@@ -94,3 +94,14 @@ func GetBooksOnViewMode(viewMode string, claims jwt.MapClaims) types.UserViewDat
 		}
 	}
 }
+
+func GetAllBooks() []types.Book {
+	db, _ := Connection()
+	defer db.Close()
+
+	rows := utils.ExecSql(db, `select * from books where quantity>=1`)
+	defer rows.Close()
+
+	books := FetchBooks(rows)
+	return books
+}
