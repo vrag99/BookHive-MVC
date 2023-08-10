@@ -84,8 +84,7 @@ func AddBook(w http.ResponseWriter, r *http.Request) {
 
 func IssueRequests(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	id := vars["id"]
-	action := vars["action"]
+	id, action := vars["id"], vars["action"]
 
 	cookie, _ := r.Cookie("access-token")
 
@@ -98,11 +97,11 @@ func IssueRequests(w http.ResponseWriter, r *http.Request) {
 	if action != "" && id != "" {
 		if action == "accept" {
 			models.AcceptIssueRequest(id)
-			http.Redirect(w, r, "/adminDashboard/issue-requests", http.StatusSeeOther)
+			http.Redirect(w, r, "/adminDashboard/issueRequests", http.StatusSeeOther)
 
 		} else if action == "reject" {
 			models.RejectIssueRequest(id)
-			http.Redirect(w, r, "/adminDashboard/issue-requests", http.StatusSeeOther)
+			http.Redirect(w, r, "/adminDashboard/issueRequests", http.StatusSeeOther)
 		}
 	} else {
 		requests := models.GetIssueRequests()
@@ -120,8 +119,7 @@ func IssueRequests(w http.ResponseWriter, r *http.Request) {
 
 func ReturnRequests(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	id := vars["id"]
-	action := vars["action"]
+	id, action := vars["id"], vars["action"]
 
 	cookie, _ := r.Cookie("access-token")
 
@@ -134,12 +132,12 @@ func ReturnRequests(w http.ResponseWriter, r *http.Request) {
 	if action != "" && id != "" {
 		if action == "accept" {
 			models.AcceptReturnRequest(id)
-			http.Redirect(w, r, "/adminDashboard/return-requests", http.StatusSeeOther)
+			http.Redirect(w, r, "/adminDashboard/returnRequests", http.StatusSeeOther)
 
 		} else if action == "reject" {
 			models.RejectReturnRequest(id)
 
-			http.Redirect(w, r, "/adminDashboard/return-requests", http.StatusSeeOther)
+			http.Redirect(w, r, "/adminDashboard/returnRequests", http.StatusSeeOther)
 		}
 	} else {
 		requests := models.GetReturnRequests()
@@ -147,6 +145,40 @@ func ReturnRequests(w http.ResponseWriter, r *http.Request) {
 		data := types.UserRequestData{
 			Username: claims["username"].(string),
 			State:    "return-requests",
+			Requests: requests,
+		}
+
+		t := views.AdminDashboard()
+		t.Execute(w, data)
+	}
+}
+
+func AdminRequests(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	action, id := vars["action"], vars["id"]
+
+	cookie, _ := r.Cookie("access-token")
+
+	claims, err := utils.DecodeJWT(cookie.Value)
+	if err != nil {
+		fmt.Println("Invalid JWT token")
+		return
+	}
+
+	if action != "" && id != "" {
+		if action == "accept" {
+			models.AcceptAdminRequest(id)
+			http.Redirect(w, r, "/adminDashboard/adminRequests", http.StatusSeeOther)
+		} else if action == "reject" {
+			models.RejectAdminRequest(id)
+			http.Redirect(w, r, "/adminDashboard/adminRequests", http.StatusSeeOther)
+		}
+	} else {
+		requests := models.GetAdminRequests()
+
+		data := types.MakeAdminRequestData{
+			Username: claims["username"].(string),
+			State:    "admin-requests",
 			Requests: requests,
 		}
 

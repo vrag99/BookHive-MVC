@@ -11,10 +11,11 @@ type YamlConfig struct {
 }
 
 type UserData struct {
-	Id       int
-	Username string
-	Admin    int
-	Hash     string
+	Id           int
+	Username     string
+	Admin        int
+	Hash         string
+	RequestAdmin int
 }
 
 type Err struct {
@@ -22,34 +23,44 @@ type Err struct {
 }
 
 type Book struct {
-	Id int
-	Name string
-	Qty int
+	Id           int
+	Name         string
+	Qty          int
 	AvailableQty int
 }
 
 type UserViewData struct {
 	Username string
-	State string
-	Books []Book
+	State    string
+	Books    []Book
 }
 
 type AdminViewData struct {
 	Username string
-	State string
-	Books []Book
-	Error string
+	State    string
+	Books    []Book
+	Error    string
 }
 
 type UserRequest struct {
-	Id int
+	Id       int
 	Username string
 	BookName string
 }
 
 type UserRequestData struct {
 	Username string
-	State string
+	State    string
 	Requests []UserRequest
 }
 
+type MakeAdminRequest struct {
+	Id       string
+	Username string
+}
+
+type MakeAdminRequestData struct {
+	Username string
+	State    string
+	Requests []MakeAdminRequest
+}

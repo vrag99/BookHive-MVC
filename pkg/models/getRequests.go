@@ -22,16 +22,46 @@ func FetchRequests(rows *sql.Rows) []types.UserRequest {
 	return fetchRequests
 }
 
+func FetchMakeAdminRequests(rows *sql.Rows) []types.MakeAdminRequest {
+	var fetchRequests []types.MakeAdminRequest
+	for rows.Next() {
+		var request types.MakeAdminRequest
+		err := rows.Scan(&request.Id, &request.Username)
+		if err != nil {
+			fmt.Println("Error fetching books")
+			panic(err)
+		}
+		fetchRequests = append(fetchRequests, request)
+	}
+
+	return fetchRequests
+
+}
+
+func GetAdminRequests() []types.MakeAdminRequest {
+	db, _ := Connection()
+	defer db.Close()
+
+	rows := utils.ExecSql(db, `
+		select id, username
+		from users
+		where requestAdmin = 1
+	`)
+
+	requests := FetchMakeAdminRequests(rows)
+	return requests
+}
+
 func GetIssueRequests() []types.UserRequest {
 	db, _ := Connection()
 	defer db.Close()
 
 	rows := utils.ExecSql(db, `
-		select requests.id , users.username, books.book_name
+		select requests.id , users.username, books.bookName
 		from requests
-		join books on requests.book_id = books.id
-		join users on requests.user_id = users.id
-		where requests.status = 'request-issue' and available_qty>=1;
+		join books on requests.bookId = books.id
+		join users on requests.userId = users.id
+		where requests.status = 'request-issue' and availableQty>=1;
 	`)
 	defer rows.Close()
 
@@ -43,11 +73,11 @@ func GetReturnRequests() []types.UserRequest {
 	db, _ := Connection()
 	defer db.Close()
 
-	rows := utils.ExecSql(db , `
-		select requests.id , users.username, books.book_name
+	rows := utils.ExecSql(db, `
+		select requests.id , users.username, books.bookName
 		from requests
-		join books on requests.book_id = books.id
-		join users on requests.user_id = users.id
+		join books on requests.bookId = books.id
+		join users on requests.userId = users.id
 		where requests.status = 'request-return';
 	`)
 
@@ -55,6 +85,17 @@ func GetReturnRequests() []types.UserRequest {
 	requests := FetchRequests(rows)
 
 	return requests
+}
+
+func AcceptAdminRequest(userId string) {
+	db, _ := Connection()
+	defer db.Close()
+
+	utils.ExecSql(db, `
+		update users
+		set admin = 1, requestAdmin = 0
+		where id = ?
+	`, userId)
 }
 
 func AcceptIssueRequest(requestId string) {
@@ -67,14 +108,14 @@ func AcceptIssueRequest(requestId string) {
 	`, requestId)
 
 	var bookId int
-	err := db.QueryRow("select r.book_id from requests r where r.id = ?", requestId).Scan(&bookId)
+	err := db.QueryRow("select r.bookId from requests r where r.id = ?", requestId).Scan(&bookId)
 	if err != nil {
 		fmt.Printf("Error: '%s' while getting bookId for issue", err)
 	}
 
 	utils.ExecSql(db, `
 		update books
-		set available_qty = available_qty - 1
+		set availableQty = availableQty - 1
 		where id = ?;
 	`, bookId)
 }
@@ -84,7 +125,7 @@ func AcceptReturnRequest(requestId string) {
 	defer db.Close()
 
 	var bookId int
-	err := db.QueryRow("select r.book_id from requests r where r.id = ?", requestId).Scan(&bookId)
+	err := db.QueryRow("select r.bookId from requests r where r.id = ?", requestId).Scan(&bookId)
 	if err != nil {
 		fmt.Printf("Error: '%s' while getting bookId for issue", err)
 		panic(err)
@@ -97,9 +138,20 @@ func AcceptReturnRequest(requestId string) {
 
 	utils.ExecSql(db, `
 		update books
-		set available_qty = available_qty + 1
+		set availableQty = availableQty + 1
 		where id = ?;
 	`, bookId)
+}
+
+func RejectAdminRequest(userId string) {
+	db, _ := Connection()
+	defer db.Close()
+
+	utils.ExecSql(db, `
+		update users
+		set admin = 0, requestAdmin = 0
+		where id = ?
+	`, userId)
 }
 
 func RejectIssueRequest(requestId string) {

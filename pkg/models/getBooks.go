@@ -31,8 +31,8 @@ func GetBooksOnViewMode(viewMode string, claims jwt.MapClaims) types.UserViewDat
 		rows := utils.ExecSql(db, `
 			select b.*
 			from books b
-			inner join requests r on b.id = r.book_id
-			where r.status = 'request-issue' and r.user_id = ? and b.available_qty>=1;
+			inner join requests r on b.id = r.bookId
+			where r.status = 'request-issue' and r.userId = ? and b.availableQty>=1;
 		`, claims["id"])
 		defer rows.Close()
 
@@ -47,8 +47,8 @@ func GetBooksOnViewMode(viewMode string, claims jwt.MapClaims) types.UserViewDat
 		rows := utils.ExecSql(db, `
 			select b.*
 			from books b
-			inner join requests r on b.id = r.book_id
-			where r.status = 'issued' and r.user_id = ? and b.available_qty>=1;
+			inner join requests r on b.id = r.bookId
+			where r.status = 'issued' and r.userId = ? and b.availableQty>=1;
 		`, claims["id"])
 		defer rows.Close()
 
@@ -63,8 +63,8 @@ func GetBooksOnViewMode(viewMode string, claims jwt.MapClaims) types.UserViewDat
 		rows := utils.ExecSql(db, `
 			select b.*
 			from books b
-			inner join requests r on b.id = r.book_id
-			where r.status = 'issued' and r.user_id = ? and b.available_qty>=1;
+			inner join requests r on b.id = r.bookId
+			where r.status = 'request-return' and r.userId = ? and b.availableQty>=1;
 		`, claims["id"])
 		defer rows.Close()
 
@@ -80,9 +80,9 @@ func GetBooksOnViewMode(viewMode string, claims jwt.MapClaims) types.UserViewDat
 		rows := utils.ExecSql(db, `
 			select b.*
 			from books b
-			left join requests r on b.id = r.book_id
-			and r.user_id = ?
-			where r.id is NULL and available_qty>=1;
+			left join requests r on b.id = r.bookId
+			and r.userId = ?
+			where r.id is NULL and b.availableQty>=1;
 		`, claims["id"])
 		defer rows.Close()
 

@@ -51,7 +51,7 @@ func RequestBook(w http.ResponseWriter, r *http.Request) {
 	defer db.Close()
 
 	utils.ExecSql(db, `
-		insert into requests(status, book_id, user_id) 
+		insert into requests(status, bookId, userId) 
 		values("request-issue", ? , ?)
 	`, bookId, claims["id"])
 
@@ -75,7 +75,12 @@ func RequestReturnBook(w http.ResponseWriter, r *http.Request) {
 	defer db.Close()
 
 	utils.ExecSql(db, `
-		insert into requests(status, book_id, user_id) 
+		delete from requests
+		where status='issued' and bookId=? and userId=?
+	`, bookId, claims["id"])
+
+	utils.ExecSql(db, `
+		insert into requests(status, bookId, userId) 
 		values("request-return", ? , ?)
 	`, bookId, claims["id"])
 

@@ -25,7 +25,7 @@ async function addBook(btn) {
                     showConfirmButton: false,
                     timer: 1000,
                 });
-                goTo('/admindashboard');
+                goTo('/adminDashboard');
             });
     }
 }

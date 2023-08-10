@@ -51,24 +51,12 @@
               <input
                 class="form-check-input"
                 type="checkbox"
-                id="registerAsAdmin"
-                name="registerAsAdmin"
+                id="requestForAdmin"
+                name="requestForAdmin"
               />
-              <label class="form-check-label" for="registerAsAdmin">
-                Register as Admin
+              <label class="form-check-label" for="requestForAdmin">
+                Request for admin access
               </label>
-            </div>
-
-            <div class="mb-4" id="adminVerification">
-              <label for="adminPassword" class="form-label"
-                >Admin Passcode</label
-              >
-              <input
-                type="password"
-                class="form-control"
-                id="adminPassword"
-                name="adminPassword"
-              />
             </div>
 
             {{ if .ErrMsg }}
@@ -94,15 +82,4 @@
       </div>
     </div>
   </body>
-
-  <script>
-    var adminPassTextbox = document.getElementById("adminVerification");
-    var registerAsAdmin = document.getElementById("registerAsAdmin");
-    adminPassTextbox.style.display = "none";
-
-    registerAsAdmin.addEventListener("change", () => {
-      if (registerAsAdmin.checked) adminPassTextbox.style.display = "block";
-      else adminPassTextbox.style.display = "none";
-    });
-  </script>
 </html>

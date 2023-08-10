@@ -38,10 +38,12 @@ func Run() {
 	// Handling AdminDashboard
 	r.HandleFunc("/adminDashboard", controller.AdminViews).Methods("GET")
 	r.HandleFunc("/adminDashboard/addBook", controller.AddBook).Methods("POST")
-	r.HandleFunc("/adminDashboard/issue-requests", controller.IssueRequests).Methods("GET")
-	r.HandleFunc("/adminDashboard/issue-requests/{action}/{id}", controller.IssueRequests).Methods("GET")
-	r.HandleFunc("/adminDashboard/return-requests", controller.ReturnRequests).Methods("GET")
-	r.HandleFunc("/adminDashboard/return-requests/{action}/{id}", controller.ReturnRequests).Methods("GET")
+	r.HandleFunc("/adminDashboard/issueRequests", controller.IssueRequests).Methods("GET")
+	r.HandleFunc("/adminDashboard/issueRequests/{action}/{id}", controller.IssueRequests).Methods("GET")
+	r.HandleFunc("/adminDashboard/returnRequests", controller.ReturnRequests).Methods("GET")
+	r.HandleFunc("/adminDashboard/returnRequests/{action}/{id}", controller.ReturnRequests).Methods("GET")
+	r.HandleFunc("/adminDashboard/adminRequests", controller.AdminRequests).Methods("GET")
+	r.HandleFunc("/adminDashboard/adminRequests/{action}/{id}", controller.AdminRequests).Methods("GET")
 
 	//Logout
 	r.HandleFunc("/logout", controller.Logout).Methods("GET")

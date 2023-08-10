@@ -4,6 +4,12 @@
     {{template "headers.html"}}
     <title>Admin</title>
     <script defer src="/static/scripts/adminDashboard.js"></script>
+
+    {{ if eq .Error "booksUpdated"}}
+    <script src="/static/scripts/booksUpdatedAlert.js"></script>
+    {{ else if eq .Error "invalidBookEntry"}}
+    <script src="/static/scripts/invalidBookEntryAlert.js"></script>
+    {{ end }}
   </head>
 
   <body>
@@ -68,13 +74,11 @@
               aria-label=".form-select-lg example"
             >
               <option value="select view mode" selected>
-                -- select view mode --
+                select view mode
               </option>
-              <option value="all">All books</option>
-              <option value="issueRequests">Issue requests</option>
-              <option value="returnRequests">Return requests</option>
-              <option value="adminRequests">Admin Requests</option>
-              "
+              <option value="all">all books</option>
+              <option value="issue-requests">issue requests</option>
+              <option value="return-requests">return requests</option>
             </select>
           </div>
         </div>
@@ -83,11 +87,7 @@
 
     {{ if eq .State "all" }}
     <div class="container mt-4 mb-5">
-      <form
-        method="post"
-        action="/adminDashboard/addBook"
-        class="bg-body-tertiary p-3 rounded-3"
-      >
+      <form method="post" action="/adminDashboard/addBook" class="bg-body-tertiary p-3 rounded-3">
         <h2 class="text-center pb-3">Add new book</h2>
         <div class="row mb-3">
           <div class="col-md-6">
@@ -132,6 +132,9 @@
           <th>Available Quantity</th>
           <th>Actions</th>
         </thead>
+        <p>
+        {{ .Books }}
+        </p>
         {{ range .Books }}
         <tr>
           <td>{{ .Name }}</td>
@@ -148,7 +151,7 @@
             <button
               class="btn btn-dark btn-sm"
               id="{{ .Id }}"
-              value="{{ .Qty }}"
+              value="{{ .BookQty }}"
               data-available="{{ .AvailableQty }}"
               onclick="removeBook(this)"
             >
@@ -173,13 +176,13 @@
           <td>{{ .BookName }}</td>
           <td>
             <a
-              href="/adminDashboard/issueRequests/accept/{{ .Id }}"
+              href="/adminDashboard/issue-requests/accept/{{ .Id }}"
               class="btn btn-dark btn-sm"
             >
               <i class="bi bi-check2"></i>
             </a>
             <a
-              href="/adminDashboard/issueRequests/reject/{{ .Id }}"
+              href="/adminDashboard/issue-requests/reject/{{ .Id }}"
               class="btn btn-dark btn-sm"
             >
               <i class="bi bi-x-lg"></i>
@@ -203,41 +206,13 @@
           <td>{{ .BookName }}</td>
           <td>
             <a
-              href="/adminDashboard/returnRequests/accept/{{ .Id }}"
+              href="/adminDashboard/return-requests/accept/{{ .Id }}"
               class="btn btn-dark btn-sm"
             >
               <i class="bi bi-check2"></i>
             </a>
             <a
-              href="/adminDashboard/returnRequests/reject/{{ .Id }}"
-              class="btn btn-dark btn-sm"
-            >
-              <i class="bi bi-x-lg"></i>
-            </a>
-          </td>
-        </tr>
-        {{end}}
-      </table>
-      {{end}} {{ if eq .State "admin-requests" }}
-      <table class="table text-center table-hover align-middle">
-        <thead>
-          <th>UserID</th>
-          <th>Username</th>
-          <th>Accept/Reject</th>
-        </thead>
-        {{ range .Requests }}
-        <tr>
-          <td>{{ .Id }}</td>
-          <td>{{ .Username }}</td>
-          <td>
-            <a
-              href="/adminDashboard/adminRequests/accept/{{ .Id }}"
-              class="btn btn-dark btn-sm"
-            >
-              <i class="bi bi-check2"></i>
-            </a>
-            <a
-              href="/adminDashboard/adminRequests/reject/{{ .Id }}"
+              href="/adminDashboard/return-requests/reject/{{ .Id }}"
               class="btn btn-dark btn-sm"
             >
               <i class="bi bi-x-lg"></i>
@@ -248,11 +223,6 @@
       </table>
       {{end}}
     </div>
-  </body>
 
-  {{ if eq .Error "booksUpdated"}}
-  <script src="/static/scripts/booksUpdatedAlert.js"></script>
-  {{ else if eq .Error "invalidBookEntry"}}
-  <script src="/static/scripts/invalidBookEntryAlert.js"></script>
-  {{ end }}
+  </body>
 </html>

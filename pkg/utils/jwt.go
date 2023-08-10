@@ -76,12 +76,12 @@ func ValidateJWT(next http.Handler) http.Handler {
 			claims, err := DecodeJWT(token)
 			if err != nil {
 				fmt.Println(claims)
-				http.Redirect(w, r, "/login", http.StatusSeeOther)
+				http.Redirect(w, r, "/", http.StatusSeeOther)
 			}
 
 			next.ServeHTTP(w, r)
 		} else {
-			http.Redirect(w, r, "/login", http.StatusSeeOther)
+			http.Redirect(w, r, "/", http.StatusSeeOther)
 		}
 	})
 }

@@ -16,7 +16,7 @@ func GetJWT(username string, password string) (string, types.Err, bool) {
 		return "", types.Err{ErrMsg: "User doesn't exist"}, false
 	} else {
 		var userData types.UserData
-		err := rows.Scan(&userData.Id, &userData.Username, &userData.Admin, &userData.Hash)
+		err := rows.Scan(&userData.Id, &userData.Username, &userData.Admin, &userData.Hash, &userData.RequestAdmin)
 		if err != nil {
 			panic(err)
 		}

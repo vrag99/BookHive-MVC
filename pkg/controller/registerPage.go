@@ -21,17 +21,9 @@ func SignUpRequest(w http.ResponseWriter, r *http.Request) {
 	username := r.FormValue("username")
 	password := r.FormValue("password")
 	confirmPassword := r.FormValue("confirmPassword")
-	registerAsAdmin := r.FormValue("registerAsAdmin")
-	adminPassword := r.FormValue("adminPassword")
+	requestForAdmin := r.FormValue("requestForAdmin") == "on"
 
-	var regAsAdmin bool
-	if registerAsAdmin == "on" {
-		regAsAdmin = true
-	} else {
-		regAsAdmin = false
-	}
-
-	err := models.AddUser(username, password, confirmPassword, regAsAdmin, adminPassword)
+	err := models.AddUser(username, password, confirmPassword, requestForAdmin)
 	if !reflect.DeepEqual(err, types.Err{}) {
 		signUpErr(w, r, err)
 	} else {

@@ -13,7 +13,7 @@ func AddBook(bookName string, bookQty int) types.Err {
 
 	var bookId int
 	bookExists := true
-	err := db.QueryRow("select id from books where book_name = ?", bookName).Scan(&bookId)
+	err := db.QueryRow("select id from books where bookName = ?", bookName).Scan(&bookId)
 	if err == sql.ErrNoRows {
 		bookExists = false
 	}
@@ -23,7 +23,7 @@ func AddBook(bookName string, bookQty int) types.Err {
 			utils.ExecSql(db, `
 				update books
 				set
-				quantity = quantity + ?, available_qty = available_qty + ?
+				quantity = quantity + ?, availableQty = availableQty + ?
 				where id = ?
 			`, bookQty, bookQty, bookId)
 
@@ -31,7 +31,7 @@ func AddBook(bookName string, bookQty int) types.Err {
 
 		} else {
 			utils.ExecSql(db, `
-				insert into books (book_name, quantity, available_qty) 
+				insert into books (bookName, quantity, availableQty) 
 				values (?, ?, ?);
 			`, bookName, bookQty, bookQty)
 
@@ -48,7 +48,7 @@ func AppendBook(bookId int, quantity int) {
 
 	utils.ExecSql(db, `
 		update books 
-		set quantity = quantity + ?, available_qty = available_qty + ?
+		set quantity = quantity + ?, availableQty = availableQty + ?
 		where id = ?
 	`, quantity, quantity, bookId)
 }
@@ -58,13 +58,13 @@ func RemoveBook(bookId int, quantity int) bool {
 	defer db.Close()
 
 	var availableQty, pendingRequests int
-	err := db.QueryRow(`select available_qty from books where books.id = ?`, bookId).Scan(&availableQty)
+	err := db.QueryRow(`select availableQty from books where books.id = ?`, bookId).Scan(&availableQty)
 	if err != nil {
 		fmt.Printf("Error: '%s' while getting available quantity for book", err)
 		panic(err)
 	}
 
-	err = db.QueryRow(`select count(*) from requests r where r.book_id = ? and r.status != 'issued'`, bookId).Scan(&pendingRequests)
+	err = db.QueryRow(`select count(*) from requests r where r.bookId = ? and r.status != 'issued'`, bookId).Scan(&pendingRequests)
 	if err != nil {
 		fmt.Printf("Error: '%s' while getting pending requests for the book.", err)
 		panic(err)
@@ -73,7 +73,7 @@ func RemoveBook(bookId int, quantity int) bool {
 	if availableQty - pendingRequests >= quantity {
 		utils.ExecSql(db, `
 			update books 
-			set quantity = quantity - ?, available_qty = available_qty - ?
+			set quantity = quantity - ?, availableQty = availableQty - ?
 			where id = ?;
 		`, quantity, quantity, bookId)
 		return true
