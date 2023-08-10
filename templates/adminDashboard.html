@@ -24,31 +24,6 @@
               {{ .Username }}'s dashboard (admin)
             </a>
           </li>
-          {{ if eq .State "all" }}
-          <li class="breadcrumb-item active">
-            <a
-              class="link-body-emphasis fw-semibold text-decoration-none"
-              href="/adminDashboard"
-              >all books</a
-            >
-          </li>
-          {{end}} {{ if eq .State "issue-requests" }}
-          <li class="breadcrumb-item active">
-            <a
-              class="link-body-emphasis fw-semibold text-decoration-none"
-              href="/adminDashboard/issue-requests"
-              >requested books</a
-            >
-          </li>
-          {{end}} {{ if eq .State "return-requests" }}
-          <li class="breadcrumb-item active">
-            <a
-              class="link-body-emphasis fw-semibold text-decoration-none"
-              href="/adminDashboard/return-requests"
-              >to-be-returned books</a
-            >
-          </li>
-          {{ end }}
 
           <li class="ms-auto">
             <a href="/logout" class="btn btn-dark btn-sm">Logout</a>

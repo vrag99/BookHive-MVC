@@ -173,3 +173,29 @@ func RejectReturnRequest(requestId string) {
 		where id = ?;
 	`, requestId)
 }
+
+
+func AddIssueRequest(bookId string, userId interface{}) {
+	db, _ := Connection()
+	defer db.Close()
+
+	utils.ExecSql(db, `
+		insert into requests(status, bookId, userId) 
+		values("request-issue", ? , ?)
+	`, bookId, userId)
+}
+
+func AddReturnRequest(bookId string, userId interface{}) {
+	db, _ := Connection()
+	defer db.Close()
+
+	utils.ExecSql(db, `
+		delete from requests
+		where status='issued' and bookId=? and userId=?
+	`, bookId, userId)
+
+	utils.ExecSql(db, `
+		insert into requests(status, bookId, userId) 
+		values("request-return", ? , ?)
+	`, bookId, userId)
+}

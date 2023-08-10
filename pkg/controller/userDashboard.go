@@ -47,13 +47,7 @@ func RequestBook(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	db, _ := models.Connection()
-	defer db.Close()
-
-	utils.ExecSql(db, `
-		insert into requests(status, bookId, userId) 
-		values("request-issue", ? , ?)
-	`, bookId, claims["id"])
+	models.AddIssueRequest(bookId, claims["id"])
 
 	http.Redirect(w, r, "/userDashboard/requested", http.StatusSeeOther)
 
@@ -71,18 +65,7 @@ func RequestReturnBook(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	db, _ := models.Connection()
-	defer db.Close()
-
-	utils.ExecSql(db, `
-		delete from requests
-		where status='issued' and bookId=? and userId=?
-	`, bookId, claims["id"])
-
-	utils.ExecSql(db, `
-		insert into requests(status, bookId, userId) 
-		values("request-return", ? , ?)
-	`, bookId, claims["id"])
+	models.AddReturnRequest(bookId, claims["id"])
 
 	http.Redirect(w, r, "/userDashboard/requested", http.StatusSeeOther)
 }

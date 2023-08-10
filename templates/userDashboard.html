@@ -23,33 +23,6 @@
               {{ .Username }}'s dashboard
             </a>
           </li>
-          {{ if eq .State "issued" }}
-          <li class="breadcrumb-item active">
-            <a
-              class="link-body-emphasis fw-semibold text-decoration-none"
-              href="/userDashboard/issued"
-              >issued books</a
-            >
-          </li>
-          {{ end }} 
-          {{ if eq .State "requested" }}
-          <li class="breadcrumb-item active">
-            <a
-              class="link-body-emphasis fw-semibold text-decoration-none"
-              href="/userDashboard/requested"
-              >requested books</a
-            >
-          </li>
-          {{ end }} 
-          {{ if eq .State "to-be-returned" }}
-          <li class="breadcrumb-item active">
-            <a
-              class="link-body-emphasis fw-semibold text-decoration-none"
-              href="/userDashboard/to-be-returned"
-              >to-be-returned books</a
-            >
-          </li>
-          {{ end }}
 
           <li class="ms-auto">
             <a href="/logout" class="btn btn-dark btn-sm">Logout</a>
