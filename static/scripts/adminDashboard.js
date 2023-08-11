@@ -5,10 +5,19 @@ function goTo(link) {
 }
 
 async function addBook(btn) {
-    var addedQty = prompt("Enter the no. of books to add");
-    if (addedQty <= 0) {
-        alert("No. of books must be positive");
-    } else if (isNaN(addedQty)) {
+    var { value: addedQty } = await Swal.fire({
+        title: "Number of books to add",
+        input: "number",
+        showCancelButton: true,
+        inputValidator: (value) => {
+            if (value <= 0) {
+                return "No. of books must be positive."
+            }
+        }
+    })
+    addedQty = parseInt(addedQty)
+
+    if (isNaN(addedQty)) {
         goTo('/adminDashboard');
     } else {
         await axios
@@ -31,12 +40,22 @@ async function addBook(btn) {
 }
 
 async function removeBook(btn) {
-    var rmQty = parseInt(prompt("Enter the no. of books to remove"));
-    if (rmQty < 0) {
-        alert("No. of books must be positive");
-    } else if (btn.dataset.available < rmQty) {
-        alert("Can't remove more books than they exist.");
-    } else if (isNaN(rmQty)) {
+    var {value: rmQty} = await Swal.fire({
+        title: "Number of books to remove",
+        input: "number",
+        showCancelButton: true,
+        inputValidator: (value) => {
+            value = parseInt(value)
+            if (value < 0) {
+                return "No. of books must be positive."
+            } else if (btn.dataset.available < value) {
+                return "Can't remove more books than they exist."
+            }
+        }
+    })
+    rmQty = parseInt(rmQty)
+
+    if (isNaN(rmQty)) {
         goTo('/adminDashboard');
     } else {
         await axios
