@@ -7,54 +7,80 @@
   </head>
 
   <body>
-    <div class="container">
-      <nav>
-        <ol class="breadcrumb p-3 rounded-3">
-          <li class="breadcrumb-item">
-            <a class="link-body-emphasis" href="/">
-              <i class="bi bi-house-door-fill"></i>
-              <span class="visually-hidden">Home</span>
-            </a>
-          </li>
-          <li class="breadcrumb-item">
-            <a
-              class="link-body-emphasis fw-semibold text-decoration-none"
-              href="/adminDashboard"
-            >
-              {{ .Username }}'s dashboard (admin)
-            </a>
-          </li>
-
-          <li class="ms-auto">
+    <nav class="navbar navbar-expand-lg shadow-sm mb-4 bg-body-tertiary">
+      <div class="container">
+        <a
+          class="fw-bold me-5 text-decoration-none text-dark text-capitalize"
+          href="/adminDashboard"
+          >{{.Username}}'s dashboard</a
+        >
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarText"
+          aria-controls="navbarText"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarText">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0 nav-underline">
+            <li class="nav-item">
+              {{ if eq .State "all" }}
+              <a
+                class="nav-link active"
+                aria-current="page"
+                href="/adminDashboard"
+                >All Books</a
+              >
+              {{ else }}
+              <a class="nav-link" aria-current="page" href="/adminDashboard"
+                >All Books</a
+              >
+              {{ end }}
+            </li>
+            <li class="nav-item">
+              {{ if eq .State "issue-requests"}}
+              <a class="nav-link active" href="/adminDashboard/issueRequests"
+                >Issue Requests</a
+              >
+              {{ else }}
+              <a class="nav-link" href="/adminDashboard/issueRequests"
+                >Issue Requests</a
+              >
+              {{ end }}
+            </li>
+            <li class="nav-item">
+              {{ if eq .State "return-requests" }}
+              <a class="nav-link active" href="/adminDashboard/returnRequests"
+                >Return Requests</a
+              >
+              {{ else }}
+              <a class="nav-link" href="/adminDashboard/returnRequests"
+                >Return Requests</a
+              >
+              {{ end }}
+            </li>
+            <li class="nav-item">
+              {{ if eq .State "admin-requests" }}
+              <a class="nav-link active" href="/adminDashboard/adminRequests"
+                >Admin Requests</a
+              >
+              {{ else }}
+              <a class="nav-link" href="/adminDashboard/adminRequests"
+                >Admin Requests</a
+              >
+              {{ end }}
+            </li>
+          </ul>
+          <div class="d-flex">
             <a href="/logout" class="btn btn-dark btn-sm">Logout</a>
-          </li>
-        </ol>
-      </nav>
-    </div>
-
-    <div class="container">
-      <form class="bg-body-tertiary pt-3 rounded-3">
-        <div class="row">
-          <div class="col-md-3 mt-1 fs-4 text-center">View type</div>
-          <div class="col-md-8 text-center">
-            <select
-              class="form-select fs-5 text-center mb-3"
-              id="viewMode"
-              aria-label=".form-select-lg example"
-            >
-              <option value="select view mode" selected>
-                -- select view mode --
-              </option>
-              <option value="all">All books</option>
-              <option value="issueRequests">Issue requests</option>
-              <option value="returnRequests">Return requests</option>
-              <option value="adminRequests">Admin Requests</option>
-              "
-            </select>
           </div>
         </div>
-      </form>
-    </div>
+      </div>
+    </nav>
 
     {{ if eq .State "all" }}
     <div class="container mt-4 mb-5">

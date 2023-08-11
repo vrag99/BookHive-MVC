@@ -2,57 +2,81 @@
 <html lang="en">
   <head>
     {{template "headers.html"}}
-    <script defer src="/static/scripts/userDashboard.js"></script>
   </head>
 
   <body>
-    <div class="container">
-      <nav>
-        <ol class="breadcrumb p-3 rounded-3">
-          <li class="breadcrumb-item">
-            <a class="link-body-emphasis" href="/">
-              <i class="bi bi-house-door-fill"></i>
-              <span class="visually-hidden">Home</span>
-            </a>
-          </li>
-          <li class="breadcrumb-item">
-            <a
-              class="link-body-emphasis fw-semibold text-decoration-none"
-              href="/userDashboard"
-            >
-              {{ .Username }}'s dashboard
-            </a>
-          </li>
-
-          <li class="ms-auto">
+    <nav class="navbar navbar-expand-lg shadow-sm mb-4 bg-body-tertiary">
+      <div class="container">
+        <a
+          class="fw-bold me-5 text-decoration-none text-dark text-capitalize"
+          href="/userDashboard"
+          >{{.Username}}'s dashboard</a
+        >
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarText"
+          aria-controls="navbarText"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarText">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0 nav-underline">
+            <li class="nav-item">
+              {{ if eq .State "available" }}
+              <a
+                class="nav-link active"
+                aria-current="page"
+                href="/userDashboard"
+                >All Books</a
+              >
+              {{ else }}
+              <a class="nav-link" aria-current="page" href="/userDashboard"
+                >All Books</a
+              >
+              {{ end }}
+            </li>
+            <li class="nav-item">
+              {{ if eq .State "requested"}}
+              <a class="nav-link active" href="/userDashboard/requested"
+                >Requested Books</a
+              >
+              {{ else }}
+              <a class="nav-link" href="/userDashboard/requested"
+                >Requested Books</a
+              >
+              {{ end }}
+            </li>
+            <li class="nav-item">
+              {{ if eq .State "issued" }}
+              <a class="nav-link active" href="/userDashboard/issued"
+                >Issued Books</a
+              >
+              {{ else }}
+              <a class="nav-link" href="/userDashboard/issued">Issued Books</a>
+              {{ end }}
+            </li>
+            <li class="nav-item">
+              {{ if eq .State "to-be-returned" }}
+              <a class="nav-link active" href="/userDashboard/to-be-returned"
+                >To Be Returned Books</a
+              >
+              {{ else }}
+              <a class="nav-link" href="/userDashboard/to-be-returned"
+                >To Be Returned Books</a
+              >
+              {{ end }}
+            </li>
+          </ul>
+          <div class="d-flex">
             <a href="/logout" class="btn btn-dark btn-sm">Logout</a>
-          </li>
-        </ol>
-      </nav>
-    </div>
-
-    <div class="container">
-      <form class="bg-body-tertiary pt-3 rounded-3">
-        <div class="row">
-          <div class="col-md-3 mt-1 fs-4 text-center">View type</div>
-          <div class="col-md-8 text-center">
-            <select
-              class="form-select fs-5 text-center mb-3"
-              id="viewMode"
-              aria-label=".form-select-lg example"
-            >
-              <option value="select view mode" selected>
-                -- select view mode --
-              </option>
-              <option value="available">Available Books</option>
-              <option value="requested">Requested Books</option>
-              <option value="issued">Issued Books</option>
-              <option value="to-be-returned">To Be Returned Books</option>
-            </select>
           </div>
         </div>
-      </form>
-    </div>
+      </div>
+    </nav>
 
     <div class="container mt-4">
       <h2 class="text-center mt-4 mb-3 fw-bold text-uppercase">
@@ -129,5 +153,4 @@
       {{end}}
     </div>
   </body>
-
 </html>
