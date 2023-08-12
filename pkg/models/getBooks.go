@@ -13,7 +13,7 @@ func FetchBooks(rows *sql.Rows) []types.Book {
 	var fetchBooks []types.Book
 	for rows.Next() {
 		var book types.Book
-		err := rows.Scan(&book.Id, &book.Name, &book.Qty, &book.AvailableQty)
+		err := rows.Scan(&book.Id, &book.Name, &book.Quantity, &book.AvailableQuantity)
 		if err != nil {
 			fmt.Println("Error fetching books")
 			panic(err)
@@ -32,7 +32,7 @@ func GetBooksOnViewMode(viewMode string, claims jwt.MapClaims) types.UserViewDat
 			select b.*
 			from books b
 			inner join requests r on b.id = r.bookId
-			where r.status = 'request-issue' and r.userId = ? and b.availableQty>=1;
+			where r.status = 'request-issue' and r.userId = ? and b.availableQuantity>=1;
 		`, claims["id"])
 		defer rows.Close()
 
@@ -48,7 +48,7 @@ func GetBooksOnViewMode(viewMode string, claims jwt.MapClaims) types.UserViewDat
 			select b.*
 			from books b
 			inner join requests r on b.id = r.bookId
-			where r.status = 'issued' and r.userId = ? and b.availableQty>=1;
+			where r.status = 'issued' and r.userId = ? and b.availableQuantity>=1;
 		`, claims["id"])
 		defer rows.Close()
 
@@ -59,19 +59,19 @@ func GetBooksOnViewMode(viewMode string, claims jwt.MapClaims) types.UserViewDat
 			Books: books,
 		}
 
-	} else if viewMode == "to-be-returned" {
+	} else if viewMode == "toBeReturned" {
 		rows := utils.ExecSql(db, `
 			select b.*
 			from books b
 			inner join requests r on b.id = r.bookId
-			where r.status = 'request-return' and r.userId = ? and b.availableQty>=1;
+			where r.status = 'request-return' and r.userId = ? and b.availableQuantity>=1;
 		`, claims["id"])
 		defer rows.Close()
 
 		books := FetchBooks(rows)
 		return types.UserViewData{
 			Username: claims["username"].(string),
-			State: viewMode,
+			State: "to-be-returned",
 			Books: books,
 		}
 
@@ -82,7 +82,7 @@ func GetBooksOnViewMode(viewMode string, claims jwt.MapClaims) types.UserViewDat
 			from books b
 			left join requests r on b.id = r.bookId
 			and r.userId = ?
-			where r.id is NULL and b.availableQty>=1;
+			where r.id is NULL and b.availableQuantity>=1;
 		`, claims["id"])
 		defer rows.Close()
 

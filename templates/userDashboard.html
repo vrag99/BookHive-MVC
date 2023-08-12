@@ -61,11 +61,11 @@
             </li>
             <li class="nav-item">
               {{ if eq .State "to-be-returned" }}
-              <a class="nav-link active" href="/userDashboard/to-be-returned"
+              <a class="nav-link active" href="/userDashboard/toBeReturned"
                 >To Be Returned Books</a
               >
               {{ else }}
-              <a class="nav-link" href="/userDashboard/to-be-returned"
+              <a class="nav-link" href="/userDashboard/toBeReturned"
                 >To Be Returned Books</a
               >
               {{ end }}
@@ -92,7 +92,7 @@
         {{ range .Books }}
         <tr>
           <td>{{ .Name }}</td>
-          <td>{{ .AvailableQty }}</td>
+          <td>{{ .AvailableQuantity }}</td>
           <td>
             <a
               href="/userDashboard/request/{{ .Id }}"

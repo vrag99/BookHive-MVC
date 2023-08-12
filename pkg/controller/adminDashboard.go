@@ -25,15 +25,15 @@ func AdminViews(w http.ResponseWriter, r *http.Request) {
 	// When the quantity of an existing book is changed.
 	// Passing params through axios.
 	id, _ := strconv.Atoi(r.FormValue("id"))
-	addedQty, _ := strconv.Atoi(r.FormValue("addedQty"))
-	rmQty, _ := strconv.Atoi(r.FormValue("rmQty"))
+	addedQuantity, _ := strconv.Atoi(r.FormValue("addedQuantity"))
+	removeQuantity, _ := strconv.Atoi(r.FormValue("removeQuantity"))
 
-	if addedQty > 0 {
-		models.AppendBook(id, addedQty)
+	if addedQuantity > 0 {
+		models.AppendBook(id, addedQuantity)
 		w.WriteHeader(http.StatusOK)
 
-	} else if rmQty > 0 {
-		success := models.RemoveBook(id, rmQty)
+	} else if removeQuantity > 0 {
+		success := models.RemoveBook(id, removeQuantity)
 		if success {
 			w.WriteHeader(http.StatusOK)
 		} else {
@@ -71,9 +71,9 @@ func AddBook(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 
 	bookName := r.FormValue("bookName")
-	bookQty, _ := strconv.Atoi(r.FormValue("bookQty"))
+	bookQuantity, _ := strconv.Atoi(r.FormValue("bookQuantity"))
 
-	err := models.AddBook(bookName, bookQty)
+	err := models.AddBook(bookName, bookQuantity)
 	if reflect.DeepEqual(err, types.Err{}) {
 		http.Redirect(w, r, "/adminDashboard?booksUpdated=true", http.StatusSeeOther)
 	} else {

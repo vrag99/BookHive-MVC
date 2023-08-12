@@ -67,5 +67,5 @@ func RequestReturnBook(w http.ResponseWriter, r *http.Request) {
 
 	models.AddReturnRequest(bookId, claims["id"])
 
-	http.Redirect(w, r, "/userDashboard/requested", http.StatusSeeOther)
+	http.Redirect(w, r, "/userDashboard/toBeReturned", http.StatusSeeOther)
 }

@@ -105,8 +105,8 @@
             <input
               type="text"
               class="form-control"
-              id="bookQty"
-              name="bookQty"
+              id="bookQuantity"
+              name="bookQuantity"
               placeholder="Quantity"
               required
             />
@@ -136,8 +136,8 @@
         {{ range .Books }}
         <tr>
           <td>{{ .Name }}</td>
-          <td>{{ .Qty }}</td>
-          <td>{{ .AvailableQty }}</td>
+          <td>{{ .Quantity }}</td>
+          <td>{{ .AvailableQuantity }}</td>
           <td>
             <button
               class="btn btn-dark btn-sm"
@@ -149,8 +149,8 @@
             <button
               class="btn btn-dark btn-sm"
               id="{{ .Id }}"
-              value="{{ .Qty }}"
-              data-available="{{ .AvailableQty }}"
+              value="{{ .Quantity }}"
+              data-available="{{ .AvailableQuantity }}"
               onclick="removeBook(this)"
             >
               <i class="bi bi-dash-lg"></i>

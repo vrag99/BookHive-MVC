@@ -4,8 +4,8 @@ function goTo(link) {
     a.click();
 }
 
-async function addBook(btn) {
-    var { value: addedQty } = await Swal.fire({
+async function addBook(button) {
+    var { value: addedQuantity } = await Swal.fire({
         title: "Number of books to add",
         input: "number",
         showCancelButton: true,
@@ -15,16 +15,16 @@ async function addBook(btn) {
             }
         }
     })
-    addedQty = parseInt(addedQty)
+    addedQuantity = parseInt(addedQuantity)
 
-    if (isNaN(addedQty)) {
+    if (isNaN(addedQuantity)) {
         goTo('/adminDashboard');
     } else {
         await axios
             .get("/adminDashboard", {
                 params: {
-                    id: btn.id,
-                    addedQty: addedQty,
+                    id: button.id,
+                    addedQuantity: addedQuantity,
                 },
             })
             .then(async (res) => {
@@ -39,8 +39,8 @@ async function addBook(btn) {
     }
 }
 
-async function removeBook(btn) {
-    var {value: rmQty} = await Swal.fire({
+async function removeBook(button) {
+    var {value: removeQuantity} = await Swal.fire({
         title: "Number of books to remove",
         input: "number",
         showCancelButton: true,
@@ -48,21 +48,21 @@ async function removeBook(btn) {
             value = parseInt(value)
             if (value < 0) {
                 return "No. of books must be positive."
-            } else if (btn.dataset.available < value) {
+            } else if (button.dataset.available < value) {
                 return "Can't remove more books than they exist."
             }
         }
     })
-    rmQty = parseInt(rmQty)
+    removeQuantity = parseInt(removeQuantity)
 
-    if (isNaN(rmQty)) {
+    if (isNaN(removeQuantity)) {
         goTo('/adminDashboard');
     } else {
         await axios
             .get("/adminDashboard", {
                 params: {
-                    id: btn.id,
-                    rmQty: rmQty,
+                    id: button.id,
+                    removeQuantity: removeQuantity,
                 },
             })
             .then(async (res) => {
@@ -84,10 +84,3 @@ async function removeBook(btn) {
         goTo('/adminDashboard');
     }
 }
-
-var viewMode = document.getElementById("viewMode");
-viewMode.addEventListener("change", () => {
-    var mode = viewMode.value;
-    if (mode != "all") goTo(`/adminDashboard/${mode}`);
-    else goTo("/adminDashboard");
-});

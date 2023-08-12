@@ -61,7 +61,7 @@ func GetIssueRequests() []types.UserRequest {
 		from requests
 		join books on requests.bookId = books.id
 		join users on requests.userId = users.id
-		where requests.status = 'request-issue' and availableQty>=1;
+		where requests.status = 'request-issue' and availableQuantity>=1;
 	`)
 	defer rows.Close()
 
@@ -115,7 +115,7 @@ func AcceptIssueRequest(requestId string) {
 
 	utils.ExecSql(db, `
 		update books
-		set availableQty = availableQty - 1
+		set availableQuantity = availableQuantity - 1
 		where id = ?;
 	`, bookId)
 }
@@ -138,7 +138,7 @@ func AcceptReturnRequest(requestId string) {
 
 	utils.ExecSql(db, `
 		update books
-		set availableQty = availableQty + 1
+		set availableQuantity = availableQuantity + 1
 		where id = ?;
 	`, bookId)
 }

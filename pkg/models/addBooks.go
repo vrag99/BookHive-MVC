@@ -7,7 +7,7 @@ import (
 	"fmt"
 )
 
-func AddBook(bookName string, bookQty int) types.Err {
+func AddBook(bookName string, bookQuantity int) types.Err {
 	db, _ := Connection()
 	defer db.Close()
 
@@ -18,27 +18,27 @@ func AddBook(bookName string, bookQty int) types.Err {
 		bookExists = false
 	}
 
-	if bookQty > 0 {
+	if bookQuantity > 0 {
 		if bookExists {
 			utils.ExecSql(db, `
 				update books
 				set
-				quantity = quantity + ?, availableQty = availableQty + ?
+				quantity = quantity + ?, availableQuantity = availableQuantity + ?
 				where id = ?
-			`, bookQty, bookQty, bookId)
+			`, bookQuantity, bookQuantity, bookId)
 
 			return types.Err{}
 
 		} else {
 			utils.ExecSql(db, `
-				insert into books (bookName, quantity, availableQty) 
+				insert into books (bookName, quantity, availableQuantity) 
 				values (?, ?, ?);
-			`, bookName, bookQty, bookQty)
+			`, bookName, bookQuantity, bookQuantity)
 
 			return types.Err{}
 		}
 	} else {
-		return types.Err{ErrMsg: "invalidQty"}
+		return types.Err{ErrMsg: "invalidQuantity"}
 	}
 }
 
@@ -48,7 +48,7 @@ func AppendBook(bookId int, quantity int) {
 
 	utils.ExecSql(db, `
 		update books 
-		set quantity = quantity + ?, availableQty = availableQty + ?
+		set quantity = quantity + ?, availableQuantity = availableQuantity + ?
 		where id = ?
 	`, quantity, quantity, bookId)
 }
@@ -57,8 +57,8 @@ func RemoveBook(bookId int, quantity int) bool {
 	db, _ := Connection()
 	defer db.Close()
 
-	var availableQty, pendingRequests int
-	err := db.QueryRow(`select availableQty from books where books.id = ?`, bookId).Scan(&availableQty)
+	var availableQuantity, pendingRequests int
+	err := db.QueryRow(`select availableQuantity from books where books.id = ?`, bookId).Scan(&availableQuantity)
 	if err != nil {
 		fmt.Printf("Error: '%s' while getting available quantity for book", err)
 		panic(err)
@@ -70,10 +70,10 @@ func RemoveBook(bookId int, quantity int) bool {
 		panic(err)
 	}
 
-	if availableQty - pendingRequests >= quantity {
+	if availableQuantity - pendingRequests >= quantity {
 		utils.ExecSql(db, `
 			update books 
-			set quantity = quantity - ?, availableQty = availableQty - ?
+			set quantity = quantity - ?, availableQuantity = availableQuantity - ?
 			where id = ?;
 		`, quantity, quantity, bookId)
 		return true

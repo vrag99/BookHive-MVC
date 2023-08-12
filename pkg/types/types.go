@@ -25,8 +25,8 @@ type Err struct {
 type Book struct {
 	Id           int
 	Name         string
-	Qty          int
-	AvailableQty int
+	Quantity          int
+	AvailableQuantity int
 }
 
 type UserViewData struct {
