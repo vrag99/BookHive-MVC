@@ -22,6 +22,8 @@ func AdminViews(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	db, _ := models.Connection()
+	defer db.Close()
 	// When the quantity of an existing book is changed.
 	// Passing params through axios.
 	id, _ := strconv.Atoi(r.FormValue("id"))
@@ -29,11 +31,11 @@ func AdminViews(w http.ResponseWriter, r *http.Request) {
 	removeQuantity, _ := strconv.Atoi(r.FormValue("removeQuantity"))
 
 	if addedQuantity > 0 {
-		models.AppendBook(id, addedQuantity)
+		models.AppendBook(db, id, addedQuantity)
 		w.WriteHeader(http.StatusOK)
 
 	} else if removeQuantity > 0 {
-		success := models.RemoveBook(id, removeQuantity)
+		success := models.RemoveBook(db, id, removeQuantity)
 		if success {
 			w.WriteHeader(http.StatusOK)
 		} else {
@@ -53,7 +55,7 @@ func AdminViews(w http.ResponseWriter, r *http.Request) {
 	} else {
 		msg = ""
 	}
-	books := models.GetAllBooks()
+	books := models.GetAllBooks(db)
 
 	data := types.AdminViewData{
 		Username: claims["username"].(string),
@@ -68,12 +70,15 @@ func AdminViews(w http.ResponseWriter, r *http.Request) {
 }
 
 func AddBook(w http.ResponseWriter, r *http.Request) {
+	db, _ := models.Connection()
+	defer db.Close()
+
 	r.ParseForm()
 
 	bookName := r.FormValue("bookName")
 	bookQuantity, _ := strconv.Atoi(r.FormValue("bookQuantity"))
 
-	err := models.AddBook(bookName, bookQuantity)
+	err := models.AddBook(db, bookName, bookQuantity)
 	if reflect.DeepEqual(err, types.Err{}) {
 		http.Redirect(w, r, "/adminDashboard?booksUpdated=true", http.StatusSeeOther)
 	} else {
@@ -94,17 +99,20 @@ func IssueRequests(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	db, _ := models.Connection()
+	defer db.Close()
+
 	if action != "" && id != "" {
 		if action == "accept" {
-			models.AcceptIssueRequest(id)
+			models.AcceptIssueRequest(db, id)
 			http.Redirect(w, r, "/adminDashboard/issueRequests", http.StatusSeeOther)
 
 		} else if action == "reject" {
-			models.RejectIssueRequest(id)
+			models.RejectIssueRequest(db, id)
 			http.Redirect(w, r, "/adminDashboard/issueRequests", http.StatusSeeOther)
 		}
 	} else {
-		requests := models.GetIssueRequests()
+		requests := models.GetIssueRequests(db)
 
 		data := types.UserRequestData{
 			Username: claims["username"].(string),
@@ -129,18 +137,21 @@ func ReturnRequests(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	db, _ := models.Connection()
+	defer db.Close()
+
 	if action != "" && id != "" {
 		if action == "accept" {
-			models.AcceptReturnRequest(id)
+			models.AcceptReturnRequest(db, id)
 			http.Redirect(w, r, "/adminDashboard/returnRequests", http.StatusSeeOther)
 
 		} else if action == "reject" {
-			models.RejectReturnRequest(id)
+			models.RejectReturnRequest(db, id)
 
 			http.Redirect(w, r, "/adminDashboard/returnRequests", http.StatusSeeOther)
 		}
 	} else {
-		requests := models.GetReturnRequests()
+		requests := models.GetReturnRequests(db)
 
 		data := types.UserRequestData{
 			Username: claims["username"].(string),
@@ -165,16 +176,19 @@ func AdminRequests(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	db, _ := models.Connection()
+	defer db.Close()
+
 	if action != "" && id != "" {
 		if action == "accept" {
-			models.AcceptAdminRequest(id)
+			models.AcceptAdminRequest(db, id)
 			http.Redirect(w, r, "/adminDashboard/adminRequests", http.StatusSeeOther)
 		} else if action == "reject" {
-			models.RejectAdminRequest(id)
+			models.RejectAdminRequest(db, id)
 			http.Redirect(w, r, "/adminDashboard/adminRequests", http.StatusSeeOther)
 		}
 	} else {
-		requests := models.GetAdminRequests()
+		requests := models.GetAdminRequests(db)
 
 		data := types.MakeAdminRequestData{
 			Username: claims["username"].(string),

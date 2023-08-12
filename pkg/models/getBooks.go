@@ -23,9 +23,7 @@ func FetchBooks(rows *sql.Rows) []types.Book {
 	return fetchBooks
 }
 
-func GetBooksOnViewMode(viewMode string, claims jwt.MapClaims) types.UserViewData {
-	db, _ := Connection()
-	defer db.Close()
+func GetBooksOnViewMode(db *sql.DB, viewMode string, claims jwt.MapClaims) types.UserViewData {
 
 	if viewMode == "requested" {
 		rows := utils.ExecSql(db, `
@@ -95,10 +93,7 @@ func GetBooksOnViewMode(viewMode string, claims jwt.MapClaims) types.UserViewDat
 	}
 }
 
-func GetAllBooks() []types.Book {
-	db, _ := Connection()
-	defer db.Close()
-
+func GetAllBooks(db *sql.DB,) []types.Book {
 	rows := utils.ExecSql(db, `select * from books where quantity>=1`)
 	defer rows.Close()
 

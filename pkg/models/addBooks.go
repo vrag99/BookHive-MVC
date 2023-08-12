@@ -7,10 +7,7 @@ import (
 	"fmt"
 )
 
-func AddBook(bookName string, bookQuantity int) types.Err {
-	db, _ := Connection()
-	defer db.Close()
-
+func AddBook(db *sql.DB, bookName string, bookQuantity int) types.Err {
 	var bookId int
 	bookExists := true
 	err := db.QueryRow("select id from books where bookName = ?", bookName).Scan(&bookId)
@@ -42,10 +39,7 @@ func AddBook(bookName string, bookQuantity int) types.Err {
 	}
 }
 
-func AppendBook(bookId int, quantity int) {
-	db, _ := Connection()
-	defer db.Close()
-
+func AppendBook(db *sql.DB, bookId int, quantity int) {
 	utils.ExecSql(db, `
 		update books 
 		set quantity = quantity + ?, availableQuantity = availableQuantity + ?
@@ -53,11 +47,9 @@ func AppendBook(bookId int, quantity int) {
 	`, quantity, quantity, bookId)
 }
 
-func RemoveBook(bookId int, quantity int) bool {
-	db, _ := Connection()
-	defer db.Close()
-
+func RemoveBook(db *sql.DB, bookId int, quantity int) bool {
 	var availableQuantity, pendingRequests int
+
 	err := db.QueryRow(`select availableQuantity from books where books.id = ?`, bookId).Scan(&availableQuantity)
 	if err != nil {
 		fmt.Printf("Error: '%s' while getting available quantity for book", err)
@@ -70,7 +62,7 @@ func RemoveBook(bookId int, quantity int) bool {
 		panic(err)
 	}
 
-	if availableQuantity - pendingRequests >= quantity {
+	if availableQuantity-pendingRequests >= quantity {
 		utils.ExecSql(db, `
 			update books 
 			set quantity = quantity - ?, availableQuantity = availableQuantity - ?

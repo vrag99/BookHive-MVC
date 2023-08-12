@@ -6,12 +6,9 @@ import (
 	"database/sql"
 )
 
-func AddUser(username string, password string, confirmPassword string, requestAdmin bool) types.Err {
-	db, _ := Connection()
-
+func AddUser(db *sql.DB, username string, password string, confirmPassword string, requestAdmin bool) types.Err {
 	var userId int
 	userExists := db.QueryRow("select id from users where username=?", username).Scan(&userId) != sql.ErrNoRows
-	defer db.Close()
 
 	if userExists {
 		return types.Err{ErrMsg: "User already exists"}

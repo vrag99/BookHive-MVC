@@ -15,6 +15,9 @@ func RegisterPage(w http.ResponseWriter, r *http.Request) {
 }
 
 func SignUpRequest(w http.ResponseWriter, r *http.Request) {
+	db, _ := models.Connection()
+	defer db.Close()
+
 	r.ParseForm()
 
 	// Getting all the form values
@@ -23,7 +26,7 @@ func SignUpRequest(w http.ResponseWriter, r *http.Request) {
 	confirmPassword := r.FormValue("confirmPassword")
 	requestForAdmin := r.FormValue("requestForAdmin") == "on"
 
-	err := models.AddUser(username, password, confirmPassword, requestForAdmin)
+	err := models.AddUser(db, username, password, confirmPassword, requestForAdmin)
 	if !reflect.DeepEqual(err, types.Err{}) {
 		signUpErr(w, r, err)
 	} else {

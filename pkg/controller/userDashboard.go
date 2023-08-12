@@ -24,7 +24,10 @@ func UserViews(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data := models.GetBooksOnViewMode(viewMode, claims)
+	db, _ := models.Connection()
+	defer db.Close()
+
+	data := models.GetBooksOnViewMode(db, viewMode, claims)
 	if reflect.DeepEqual(data, types.UserViewData{}){
 		// If got no data
 		fmt.Fprintf(w, "No data. Might be due to an invalid viewMode or error in fetching books.")
@@ -47,7 +50,10 @@ func RequestBook(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	models.AddIssueRequest(bookId, claims["id"])
+	db, _ := models.Connection()
+	defer db.Close()
+
+	models.AddIssueRequest(db, bookId, claims["id"])
 
 	http.Redirect(w, r, "/userDashboard/requested", http.StatusSeeOther)
 
@@ -65,7 +71,10 @@ func RequestReturnBook(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	models.AddReturnRequest(bookId, claims["id"])
+	db, _ := models.Connection()
+	defer db.Close()
+
+	models.AddReturnRequest(db, bookId, claims["id"])
 
 	http.Redirect(w, r, "/userDashboard/toBeReturned", http.StatusSeeOther)
 }

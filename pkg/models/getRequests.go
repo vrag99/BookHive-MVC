@@ -38,10 +38,7 @@ func FetchMakeAdminRequests(rows *sql.Rows) []types.MakeAdminRequest {
 
 }
 
-func GetAdminRequests() []types.MakeAdminRequest {
-	db, _ := Connection()
-	defer db.Close()
-
+func GetAdminRequests(db *sql.DB) []types.MakeAdminRequest {
 	rows := utils.ExecSql(db, `
 		select id, username
 		from users
@@ -52,10 +49,7 @@ func GetAdminRequests() []types.MakeAdminRequest {
 	return requests
 }
 
-func GetIssueRequests() []types.UserRequest {
-	db, _ := Connection()
-	defer db.Close()
-
+func GetIssueRequests(db *sql.DB) []types.UserRequest {
 	rows := utils.ExecSql(db, `
 		select requests.id , users.username, books.bookName
 		from requests
@@ -69,10 +63,7 @@ func GetIssueRequests() []types.UserRequest {
 	return requests
 }
 
-func GetReturnRequests() []types.UserRequest {
-	db, _ := Connection()
-	defer db.Close()
-
+func GetReturnRequests(db *sql.DB) []types.UserRequest {
 	rows := utils.ExecSql(db, `
 		select requests.id , users.username, books.bookName
 		from requests
@@ -87,10 +78,7 @@ func GetReturnRequests() []types.UserRequest {
 	return requests
 }
 
-func AcceptAdminRequest(userId string) {
-	db, _ := Connection()
-	defer db.Close()
-
+func AcceptAdminRequest(db *sql.DB, userId string) {
 	utils.ExecSql(db, `
 		update users
 		set admin = 1, requestAdmin = 0
@@ -98,10 +86,7 @@ func AcceptAdminRequest(userId string) {
 	`, userId)
 }
 
-func AcceptIssueRequest(requestId string) {
-	db, _ := Connection()
-	defer db.Close()
-
+func AcceptIssueRequest(db *sql.DB, requestId string) {
 	utils.ExecSql(db, `
 	update requests set status = 'issued' 
 	where id = ?;
@@ -120,10 +105,7 @@ func AcceptIssueRequest(requestId string) {
 	`, bookId)
 }
 
-func AcceptReturnRequest(requestId string) {
-	db, _ := Connection()
-	defer db.Close()
-
+func AcceptReturnRequest(db *sql.DB, requestId string) {
 	var bookId int
 	err := db.QueryRow("select r.bookId from requests r where r.id = ?", requestId).Scan(&bookId)
 	if err != nil {
@@ -143,10 +125,7 @@ func AcceptReturnRequest(requestId string) {
 	`, bookId)
 }
 
-func RejectAdminRequest(userId string) {
-	db, _ := Connection()
-	defer db.Close()
-
+func RejectAdminRequest(db *sql.DB, userId string) {
 	utils.ExecSql(db, `
 		update users
 		set admin = 0, requestAdmin = 0
@@ -154,41 +133,28 @@ func RejectAdminRequest(userId string) {
 	`, userId)
 }
 
-func RejectIssueRequest(requestId string) {
-	db, _ := Connection()
-	defer db.Close()
-
+func RejectIssueRequest(db *sql.DB, requestId string) {
 	utils.ExecSql(db, `
 		delete from requests
 		where id = ?;
 	`, requestId)
 }
 
-func RejectReturnRequest(requestId string) {
-	db, _ := Connection()
-	defer db.Close()
-
+func RejectReturnRequest(db *sql.DB, requestId string) {
 	utils.ExecSql(db, `
 		update requests set status = 'issued' 
 		where id = ?;
 	`, requestId)
 }
 
-
-func AddIssueRequest(bookId string, userId interface{}) {
-	db, _ := Connection()
-	defer db.Close()
-
+func AddIssueRequest(db *sql.DB, bookId string, userId interface{}) {
 	utils.ExecSql(db, `
 		insert into requests(status, bookId, userId) 
 		values("request-issue", ? , ?)
 	`, bookId, userId)
 }
 
-func AddReturnRequest(bookId string, userId interface{}) {
-	db, _ := Connection()
-	defer db.Close()
-
+func AddReturnRequest(db *sql.DB, bookId string, userId interface{}) {
 	utils.ExecSql(db, `
 		delete from requests
 		where status='issued' and bookId=? and userId=?
