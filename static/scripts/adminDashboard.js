@@ -40,7 +40,7 @@ async function addBook(button) {
 }
 
 async function removeBook(button) {
-    var {value: removeQuantity} = await Swal.fire({
+    var { value: removeQuantity } = await Swal.fire({
         title: "Number of books to remove",
         input: "number",
         showCancelButton: true,
@@ -83,4 +83,26 @@ async function removeBook(button) {
             });
         goTo('/adminDashboard');
     }
+}
+
+async function deleteBook(button) {
+    await axios
+        .get(`/adminDashboard/deleteBook/${button.id}`)
+        .then(async (res) =>{
+            await Swal.fire({
+                title: "Deleted Successfully!",
+                icon: "success",
+                showConfirmButton: false,
+                timer: 1000,
+            });
+        }).catch(async (err) =>{
+            await Swal.fire({
+                title: "Couldn't delete",
+                text: "The book is already issued, requested for issue or to be returned",
+                icon: "error",
+                showConfirmButton: false,
+                timer: 2000,
+            });
+        })
+        goTo('/adminDashboard')
 }

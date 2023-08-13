@@ -2,51 +2,66 @@ package api
 
 import (
 	"BookHive/pkg/controller"
-	"BookHive/pkg/utils"
 	"net/http"
 
 	"github.com/gorilla/mux"
 )
 
 func Run() {
-	r := mux.NewRouter()
+	router := mux.NewRouter()
 
 	// Serving the static files
 	s := http.StripPrefix("/static/", http.FileServer(http.Dir("./static/")))
-	r.PathPrefix("/static/").Handler(s)
+	router.PathPrefix("/static/").Handler(s)
 
-	// Middleware
-	r.Use(utils.ValidateJWT)
+	// Middleware for validating jwt
+	router.Use(controller.ValidateJWT)
 
 	// Handling home page
-	r.HandleFunc("/", controller.HomePage).Methods("GET")
+	router.HandleFunc("/", controller.HomePage).Methods("GET")
 
 	// Handling register page
-	r.HandleFunc("/register", controller.RegisterPage).Methods("GET")
-	r.HandleFunc("/register", controller.SignUpRequest).Methods("POST")
+	router.HandleFunc("/register", controller.RegisterPage).Methods("GET")
+	router.HandleFunc("/register", controller.SignUpRequest).Methods("POST")
 
 	// Handling login page
-	r.HandleFunc("/login", controller.LoginPage).Methods("GET")
-	r.HandleFunc("/login", controller.LoginRequest).Methods("POST")
+	router.HandleFunc("/login", controller.LoginPage).Methods("GET")
+	router.HandleFunc("/login", controller.LoginRequest).Methods("POST")
+
+	adminRouter := router.PathPrefix("/adminDashboard").Subrouter()
+	userRouter := router.PathPrefix("/userDashboard").Subrouter()
+
+	adminRouter.Use(controller.CheckForAdmin(true))
+	userRouter.Use(controller.CheckForAdmin(false))
 
 	// Handling UserDashboard
-	r.HandleFunc("/userDashboard", controller.UserViews).Methods("GET")
-	r.HandleFunc("/userDashboard/{viewMode}", controller.UserViews).Methods("GET")
-	r.HandleFunc("/userDashboard/request/{id}", controller.RequestBook).Methods("GET")
-	r.HandleFunc("/userDashboard/requestReturn/{id}", controller.RequestReturnBook).Methods("GET")
+	userRouter.HandleFunc("", controller.UserViews).Methods("GET")
+	userRouter.HandleFunc("/{viewMode}", controller.UserViews).Methods("GET")
+	userRouter.HandleFunc("/request/{id}", controller.RequestBook).Methods("GET")
+	userRouter.HandleFunc("/requestReturn/{id}", controller.RequestReturnBook).Methods("GET")
 
 	// Handling AdminDashboard
-	r.HandleFunc("/adminDashboard", controller.AdminViews).Methods("GET")
-	r.HandleFunc("/adminDashboard/addBook", controller.AddBook).Methods("POST")
-	r.HandleFunc("/adminDashboard/issueRequests", controller.IssueRequests).Methods("GET")
-	r.HandleFunc("/adminDashboard/issueRequests/{action}/{id}", controller.IssueRequests).Methods("GET")
-	r.HandleFunc("/adminDashboard/returnRequests", controller.ReturnRequests).Methods("GET")
-	r.HandleFunc("/adminDashboard/returnRequests/{action}/{id}", controller.ReturnRequests).Methods("GET")
-	r.HandleFunc("/adminDashboard/adminRequests", controller.AdminRequests).Methods("GET")
-	r.HandleFunc("/adminDashboard/adminRequests/{action}/{id}", controller.AdminRequests).Methods("GET")
+	adminRouter.HandleFunc("", controller.AdminViews).Methods("GET")
+	adminRouter.HandleFunc("/deleteBook/{id}", controller.DeleteBook).Methods("GET")
+	adminRouter.HandleFunc("/addBook", controller.AddBook).Methods("POST")
+	adminRouter.HandleFunc("/issueRequests", controller.IssueRequests).Methods("GET")
+	adminRouter.HandleFunc("/issueRequests/{action}/{id}", controller.IssueRequests).Methods("GET")
+	adminRouter.HandleFunc("/returnRequests", controller.ReturnRequests).Methods("GET")
+	adminRouter.HandleFunc("/returnRequests/{action}/{id}", controller.ReturnRequests).Methods("GET")
+	adminRouter.HandleFunc("/adminRequests", controller.AdminRequests).Methods("GET")
+	adminRouter.HandleFunc("/adminRequests/{action}/{id}", controller.AdminRequests).Methods("GET")
 
 	//Logout
-	r.HandleFunc("/logout", controller.Logout).Methods("GET")
+	router.HandleFunc("/logout", controller.Logout).Methods("GET")
 
-	http.ListenAndServe(":3000", r)
+	//404
+	router.NotFoundHandler = http.HandlerFunc(controller.NotFound)
+
+	//403
+	router.HandleFunc("/forbiddenRequest", controller.ForbiddenRequest).Methods("GET")
+	
+	//500
+	router.HandleFunc("/internalServerError", controller.InternalServerError).Methods("GET")
+
+	http.ListenAndServe(":3000", router)
 }

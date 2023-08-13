@@ -7,7 +7,12 @@ type YamlConfig struct {
 	Host              string `yaml:"host"`
 	DbName            string `yaml:"dbName"`
 	AccessTokenSecret string `yaml:"accessTokenSecret"`
-	AdminPassword     string `yaml:"adminPassword"`
+}
+
+type Claims struct {
+	Id interface{}
+	Username string
+	IsAdmin bool
 }
 
 type UserData struct {

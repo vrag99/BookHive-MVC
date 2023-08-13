@@ -2,8 +2,9 @@ package controller
 
 import (
 	"BookHive/pkg/models"
+	"BookHive/pkg/models/bookQueries"
+	"BookHive/pkg/models/requestQueries"
 	"BookHive/pkg/types"
-	"BookHive/pkg/utils"
 	"BookHive/pkg/views"
 	"fmt"
 	"net/http"
@@ -14,16 +15,11 @@ import (
 )
 
 func AdminViews(w http.ResponseWriter, r *http.Request) {
-	cookie, _ := r.Cookie("access-token")
-
-	claims, err := utils.DecodeJWT(cookie.Value)
-	if err != nil {
-		fmt.Println("Invalid JWT token")
-		return
-	}
+	claims := r.Context().Value(JWTContextKey).(types.Claims)
 
 	db, _ := models.Connection()
 	defer db.Close()
+
 	// When the quantity of an existing book is changed.
 	// Passing params through axios.
 	id, _ := strconv.Atoi(r.FormValue("id"))
@@ -31,11 +27,11 @@ func AdminViews(w http.ResponseWriter, r *http.Request) {
 	removeQuantity, _ := strconv.Atoi(r.FormValue("removeQuantity"))
 
 	if addedQuantity > 0 {
-		models.AppendBook(db, id, addedQuantity)
+		bookQueries.AppendBook(db, id, addedQuantity)
 		w.WriteHeader(http.StatusOK)
 
 	} else if removeQuantity > 0 {
-		success := models.RemoveBook(db, id, removeQuantity)
+		success := bookQueries.RemoveBook(db, id, removeQuantity)
 		if success {
 			w.WriteHeader(http.StatusOK)
 		} else {
@@ -55,10 +51,10 @@ func AdminViews(w http.ResponseWriter, r *http.Request) {
 	} else {
 		msg = ""
 	}
-	books := models.GetAllBooks(db)
+	books := bookQueries.GetAllBooks(db)
 
 	data := types.AdminViewData{
-		Username: claims["username"].(string),
+		Username: claims.Username,
 		State:    "all",
 		Books:    books,
 		Error:    msg,
@@ -78,7 +74,7 @@ func AddBook(w http.ResponseWriter, r *http.Request) {
 	bookName := r.FormValue("bookName")
 	bookQuantity, _ := strconv.Atoi(r.FormValue("bookQuantity"))
 
-	err := models.AddBook(db, bookName, bookQuantity)
+	err := bookQueries.AddBook(db, bookName, bookQuantity)
 	if reflect.DeepEqual(err, types.Err{}) {
 		http.Redirect(w, r, "/adminDashboard?booksUpdated=true", http.StatusSeeOther)
 	} else {
@@ -87,35 +83,50 @@ func AddBook(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func IssueRequests(w http.ResponseWriter, r *http.Request) {
+func DeleteBook(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	id, action := vars["id"], vars["action"]
+	id, err := strconv.Atoi(vars["id"])
 
-	cookie, _ := r.Cookie("access-token")
-
-	claims, err := utils.DecodeJWT(cookie.Value)
 	if err != nil {
-		fmt.Println("Invalid JWT token")
+		fmt.Printf("invalid request: %s", err)
+		fmt.Println(id)
 		return
 	}
 
 	db, _ := models.Connection()
 	defer db.Close()
 
+	success := bookQueries.DeleteBook(db, id)
+	if success {
+		w.WriteHeader(http.StatusOK)
+	} else {
+		w.WriteHeader(http.StatusBadRequest)
+	}
+}
+
+func IssueRequests(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id, action := vars["id"], vars["action"]
+
+	claims := r.Context().Value(JWTContextKey).(types.Claims)
+
+	db, _ := models.Connection()
+	defer db.Close()
+
 	if action != "" && id != "" {
 		if action == "accept" {
-			models.AcceptIssueRequest(db, id)
+			requestQueries.AcceptIssueRequest(db, id)
 			http.Redirect(w, r, "/adminDashboard/issueRequests", http.StatusSeeOther)
 
 		} else if action == "reject" {
-			models.RejectIssueRequest(db, id)
+			requestQueries.RejectIssueRequest(db, id)
 			http.Redirect(w, r, "/adminDashboard/issueRequests", http.StatusSeeOther)
 		}
 	} else {
-		requests := models.GetIssueRequests(db)
+		requests := requestQueries.GetIssueRequests(db)
 
 		data := types.UserRequestData{
-			Username: claims["username"].(string),
+			Username: claims.Username,
 			State:    "issue-requests",
 			Requests: requests,
 		}
@@ -129,32 +140,26 @@ func ReturnRequests(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, action := vars["id"], vars["action"]
 
-	cookie, _ := r.Cookie("access-token")
-
-	claims, err := utils.DecodeJWT(cookie.Value)
-	if err != nil {
-		fmt.Println("Invalid JWT token")
-		return
-	}
+	claims := r.Context().Value(JWTContextKey).(types.Claims)
 
 	db, _ := models.Connection()
 	defer db.Close()
 
 	if action != "" && id != "" {
 		if action == "accept" {
-			models.AcceptReturnRequest(db, id)
+			requestQueries.AcceptReturnRequest(db, id)
 			http.Redirect(w, r, "/adminDashboard/returnRequests", http.StatusSeeOther)
 
 		} else if action == "reject" {
-			models.RejectReturnRequest(db, id)
+			requestQueries.RejectReturnRequest(db, id)
 
 			http.Redirect(w, r, "/adminDashboard/returnRequests", http.StatusSeeOther)
 		}
 	} else {
-		requests := models.GetReturnRequests(db)
+		requests := requestQueries.GetReturnRequests(db)
 
 		data := types.UserRequestData{
-			Username: claims["username"].(string),
+			Username: claims.Username,
 			State:    "return-requests",
 			Requests: requests,
 		}
@@ -168,30 +173,24 @@ func AdminRequests(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	action, id := vars["action"], vars["id"]
 
-	cookie, _ := r.Cookie("access-token")
-
-	claims, err := utils.DecodeJWT(cookie.Value)
-	if err != nil {
-		fmt.Println("Invalid JWT token")
-		return
-	}
+	claims := r.Context().Value(JWTContextKey).(types.Claims)
 
 	db, _ := models.Connection()
 	defer db.Close()
 
 	if action != "" && id != "" {
 		if action == "accept" {
-			models.AcceptAdminRequest(db, id)
+			requestQueries.AcceptAdminRequest(db, id)
 			http.Redirect(w, r, "/adminDashboard/adminRequests", http.StatusSeeOther)
 		} else if action == "reject" {
-			models.RejectAdminRequest(db, id)
+			requestQueries.RejectAdminRequest(db, id)
 			http.Redirect(w, r, "/adminDashboard/adminRequests", http.StatusSeeOther)
 		}
 	} else {
-		requests := models.GetAdminRequests(db)
+		requests := requestQueries.GetAdminRequests(db)
 
 		data := types.MakeAdminRequestData{
-			Username: claims["username"].(string),
+			Username: claims.Username,
 			State:    "admin-requests",
 			Requests: requests,
 		}
