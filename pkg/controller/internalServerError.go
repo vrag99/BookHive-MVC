@@ -6,6 +6,6 @@ import (
 )
 
 func InternalServerError(w http.ResponseWriter, r *http.Request) {
-	t := views.InternalServerError()
+	t := views.Mode("internalServerError")
 	t.Execute(w, nil)
 }

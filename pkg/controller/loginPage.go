@@ -25,8 +25,9 @@ func LoginPage(w http.ResponseWriter, r *http.Request) {
 			ErrMsg:     "",
 			Registered: registered,
 		}
-		t := views.LoginPage()
+		t := views.Mode("login")
 		t.Execute(w, data)
+
 	} else {
 		claims, err := utils.DecodeJWT(cookie.Value)
 		if err != nil {
@@ -72,6 +73,6 @@ func LoginRequest(w http.ResponseWriter, r *http.Request) {
 }
 
 func loginErr(w http.ResponseWriter, r *http.Request, err types.Err) {
-	t := views.LoginPage()
+	t := views.Mode("login")
 	t.Execute(w, err)
 }

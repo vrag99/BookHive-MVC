@@ -72,7 +72,7 @@ func AdminViews(w http.ResponseWriter, r *http.Request) {
 		Error:    message,
 	}
 
-	t := views.AdminDashboard()
+	t := views.Mode("adminDashboard")
 	t.Execute(w, data)
 
 }
@@ -164,7 +164,7 @@ func IssueRequests(w http.ResponseWriter, r *http.Request) {
 			Requests: requests,
 		}
 
-		t := views.AdminDashboard()
+		t := views.Mode("adminDashboard")
 		t.Execute(w, data)
 	}
 }
@@ -208,7 +208,7 @@ func ReturnRequests(w http.ResponseWriter, r *http.Request) {
 			Requests: requests,
 		}
 
-		t := views.AdminDashboard()
+		t := views.Mode("adminDashboard")
 		t.Execute(w, data)
 	}
 }
@@ -253,7 +253,7 @@ func AdminRequests(w http.ResponseWriter, r *http.Request) {
 			Requests: requests,
 		}
 
-		t := views.AdminDashboard()
+		t := views.Mode("adminDashboard")
 		t.Execute(w, data)
 	}
 }

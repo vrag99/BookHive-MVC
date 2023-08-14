@@ -6,6 +6,6 @@ import (
 )
 
 func NotFound(w http.ResponseWriter, r *http.Request) {
-	t := views.NotFound()
+	t := views.Mode("notFound")
 	t.Execute(w, nil)
 }

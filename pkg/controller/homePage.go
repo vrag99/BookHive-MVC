@@ -6,6 +6,6 @@ import (
 )
 
 func HomePage(w http.ResponseWriter, r *http.Request) {
-	t := views.HomePage()
+	t := views.Mode("home")
 	t.Execute(w, nil)
 }

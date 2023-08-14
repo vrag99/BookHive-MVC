@@ -10,7 +10,7 @@ import (
 )
 
 func RegisterPage(w http.ResponseWriter, r *http.Request) {
-	t := views.RegisterPage()
+	t := views.Mode("register")
 	t.Execute(w, nil)
 }
 
@@ -43,6 +43,6 @@ func SignUpRequest(w http.ResponseWriter, r *http.Request) {
 }
 
 func signUpErr(w http.ResponseWriter, r *http.Request, err types.Err) {
-	t := views.RegisterPage()
+	t := views.Mode("register")
 	t.Execute(w, err)
 }

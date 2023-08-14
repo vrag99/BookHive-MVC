@@ -28,7 +28,7 @@ func UserViews(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/internalServerError", http.StatusSeeOther)
 	}
 
-	t := views.UserDashboard()
+	t := views.Mode("userDashboard")
 	t.Execute(w, data)
 }
 

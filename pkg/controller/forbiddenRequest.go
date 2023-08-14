@@ -6,6 +6,6 @@ import (
 )
 
 func ForbiddenRequest(w http.ResponseWriter, r *http.Request) {
-	t := views.ForbiddenRequest()
+	t := views.Mode("forbiddenRequest")
 	t.Execute(w, nil)
 }
