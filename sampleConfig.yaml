@@ -4,4 +4,3 @@ port:
 host: ""
 dbName: ""
 accessTokenSecret: ""
-adminPassword: ""

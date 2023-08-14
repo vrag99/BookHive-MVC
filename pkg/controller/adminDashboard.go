@@ -6,7 +6,7 @@ import (
 	"BookHive/pkg/models/requestQueries"
 	"BookHive/pkg/types"
 	"BookHive/pkg/views"
-	"fmt"
+	"log"
 	"net/http"
 	"reflect"
 	"strconv"
@@ -17,7 +17,11 @@ import (
 func AdminViews(w http.ResponseWriter, r *http.Request) {
 	claims := r.Context().Value(JWTContextKey).(types.Claims)
 
-	db, _ := models.Connection()
+	db, err := models.Connection()
+	if err != nil {
+		http.Redirect(w, r, "/internalServerError", http.StatusSeeOther)
+	}
+
 	defer db.Close()
 
 	// When the quantity of an existing book is changed.
@@ -31,8 +35,12 @@ func AdminViews(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 
 	} else if removeQuantity > 0 {
-		success := bookQueries.RemoveBook(db, id, removeQuantity)
-		if success {
+		ok, err := bookQueries.RemoveBook(db, id, removeQuantity)
+		if err != nil {
+			http.Redirect(w, r, "/internalServerError", http.StatusSeeOther)
+		}
+
+		if ok {
 			w.WriteHeader(http.StatusOK)
 		} else {
 			w.WriteHeader(http.StatusBadRequest)
@@ -43,21 +51,25 @@ func AdminViews(w http.ResponseWriter, r *http.Request) {
 	booksUpdated := r.FormValue("booksUpdated") == "true"
 	invalidBookEntry := r.FormValue("invalidBookEntry") == "true"
 
-	var msg string
+	var message string
 	if booksUpdated {
-		msg = "booksUpdated"
+		message = "booksUpdated"
 	} else if invalidBookEntry {
-		msg = "invalidBookEntry"
+		message = "invalidBookEntry"
 	} else {
-		msg = ""
+		message = ""
 	}
-	books := bookQueries.GetAllBooks(db)
+
+	books, err := bookQueries.GetAllBooks(db)
+	if err != nil {
+		http.Redirect(w, r, "/internalServerError", http.StatusSeeOther)
+	}
 
 	data := types.AdminViewData{
 		Username: claims.Username,
 		State:    "all",
 		Books:    books,
-		Error:    msg,
+		Error:    message,
 	}
 
 	t := views.AdminDashboard()
@@ -66,7 +78,10 @@ func AdminViews(w http.ResponseWriter, r *http.Request) {
 }
 
 func AddBook(w http.ResponseWriter, r *http.Request) {
-	db, _ := models.Connection()
+	db, err := models.Connection()
+	if err != nil {
+		http.Redirect(w, r, "/internalServerError", http.StatusSeeOther)
+	}
 	defer db.Close()
 
 	r.ParseForm()
@@ -74,8 +89,8 @@ func AddBook(w http.ResponseWriter, r *http.Request) {
 	bookName := r.FormValue("bookName")
 	bookQuantity, _ := strconv.Atoi(r.FormValue("bookQuantity"))
 
-	err := bookQueries.AddBook(db, bookName, bookQuantity)
-	if reflect.DeepEqual(err, types.Err{}) {
+	error := bookQueries.AddBook(db, bookName, bookQuantity)
+	if reflect.DeepEqual(error, types.Err{}) {
 		http.Redirect(w, r, "/adminDashboard?booksUpdated=true", http.StatusSeeOther)
 	} else {
 		http.Redirect(w, r, "/adminDashboard?invalidBookEntry=true", http.StatusSeeOther)
@@ -86,18 +101,23 @@ func AddBook(w http.ResponseWriter, r *http.Request) {
 func DeleteBook(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
-
 	if err != nil {
-		fmt.Printf("invalid request: %s", err)
-		fmt.Println(id)
-		return
+		log.Printf("An invalid number was passed as id for book: %v", err)
+		http.Redirect(w, r, "/internalServerError", http.StatusSeeOther)
 	}
 
-	db, _ := models.Connection()
+	db, err := models.Connection()
+	if err != nil {
+		http.Redirect(w, r, "/internalServerError", http.StatusSeeOther)
+	}
 	defer db.Close()
 
-	success := bookQueries.DeleteBook(db, id)
-	if success {
+	ok, err := bookQueries.DeleteBook(db, id)
+	if err != nil {
+		http.Redirect(w, r, "/internalServerError", http.StatusSeeOther)
+	}
+
+	if ok {
 		w.WriteHeader(http.StatusOK)
 	} else {
 		w.WriteHeader(http.StatusBadRequest)
@@ -110,20 +130,33 @@ func IssueRequests(w http.ResponseWriter, r *http.Request) {
 
 	claims := r.Context().Value(JWTContextKey).(types.Claims)
 
-	db, _ := models.Connection()
+	db, err := models.Connection()
+	if err != nil {
+		http.Redirect(w, r, "/internalServerError", http.StatusSeeOther)
+	}
 	defer db.Close()
 
 	if action != "" && id != "" {
 		if action == "accept" {
-			requestQueries.AcceptIssueRequest(db, id)
+			err = requestQueries.AcceptIssueRequest(db, id)
+			if err != nil {
+				http.Redirect(w, r, "/internalServerError", http.StatusSeeOther)
+			}
 			http.Redirect(w, r, "/adminDashboard/issueRequests", http.StatusSeeOther)
 
 		} else if action == "reject" {
-			requestQueries.RejectIssueRequest(db, id)
+			err = requestQueries.RejectIssueRequest(db, id)
+			if err != nil {
+				http.Redirect(w, r, "/internalServerError", http.StatusSeeOther)
+			}
 			http.Redirect(w, r, "/adminDashboard/issueRequests", http.StatusSeeOther)
 		}
+
 	} else {
-		requests := requestQueries.GetIssueRequests(db)
+		requests, err := requestQueries.GetIssueRequests(db)
+		if err != nil {
+			http.Redirect(w, r, "/internalServerError", http.StatusSeeOther)
+		}
 
 		data := types.UserRequestData{
 			Username: claims.Username,
@@ -142,21 +175,32 @@ func ReturnRequests(w http.ResponseWriter, r *http.Request) {
 
 	claims := r.Context().Value(JWTContextKey).(types.Claims)
 
-	db, _ := models.Connection()
+	db, err := models.Connection()
+	if err != nil {
+		http.Redirect(w, r, "/internalServerError", http.StatusSeeOther)
+	}
 	defer db.Close()
 
 	if action != "" && id != "" {
 		if action == "accept" {
-			requestQueries.AcceptReturnRequest(db, id)
+			err = requestQueries.AcceptReturnRequest(db, id)
+			if err != nil {
+				http.Redirect(w, r, "/internalServerError", http.StatusSeeOther)
+			}
 			http.Redirect(w, r, "/adminDashboard/returnRequests", http.StatusSeeOther)
 
 		} else if action == "reject" {
-			requestQueries.RejectReturnRequest(db, id)
-
+			err = requestQueries.RejectReturnRequest(db, id)
+			if err != nil {
+				http.Redirect(w, r, "/internalServerError", http.StatusSeeOther)
+			}
 			http.Redirect(w, r, "/adminDashboard/returnRequests", http.StatusSeeOther)
 		}
 	} else {
-		requests := requestQueries.GetReturnRequests(db)
+		requests, err := requestQueries.GetReturnRequests(db)
+		if err != nil {
+			http.Redirect(w, r, "/internalServerError", http.StatusSeeOther)
+		}
 
 		data := types.UserRequestData{
 			Username: claims.Username,
@@ -175,19 +219,33 @@ func AdminRequests(w http.ResponseWriter, r *http.Request) {
 
 	claims := r.Context().Value(JWTContextKey).(types.Claims)
 
-	db, _ := models.Connection()
+	db, err := models.Connection()
+	if err != nil {
+		http.Redirect(w, r, "/internalServerError", http.StatusSeeOther)
+	}
 	defer db.Close()
 
 	if action != "" && id != "" {
 		if action == "accept" {
-			requestQueries.AcceptAdminRequest(db, id)
+			err = requestQueries.AcceptAdminRequest(db, id)
+			if err != nil {
+				http.Redirect(w, r, "/internalServerError", http.StatusSeeOther)
+			}
 			http.Redirect(w, r, "/adminDashboard/adminRequests", http.StatusSeeOther)
+
 		} else if action == "reject" {
-			requestQueries.RejectAdminRequest(db, id)
+			err = requestQueries.RejectAdminRequest(db, id)
+			if err != nil {
+				http.Redirect(w, r, "/internalServerError", http.StatusSeeOther)
+			}
 			http.Redirect(w, r, "/adminDashboard/adminRequests", http.StatusSeeOther)
 		}
+
 	} else {
-		requests := requestQueries.GetAdminRequests(db)
+		requests, err := requestQueries.GetAdminRequests(db)
+		if err != nil {
+			http.Redirect(w, r, "/internalServerError", http.StatusSeeOther)
+		}
 
 		data := types.MakeAdminRequestData{
 			Username: claims.Username,

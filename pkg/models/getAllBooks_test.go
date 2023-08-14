@@ -17,4 +17,5 @@ func TestGetAllBooks(t *testing.T) {
 		AddRow(2, "book2", 5, 4)
 	
 	mock.ExpectQuery("select * from books where quantity >= 1").WillReturnRows(rows)
+	
 }

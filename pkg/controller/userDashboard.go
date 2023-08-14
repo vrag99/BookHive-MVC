@@ -6,9 +6,7 @@ import (
 	"BookHive/pkg/models/requestQueries"
 	"BookHive/pkg/types"
 	"BookHive/pkg/views"
-	"fmt"
 	"net/http"
-	"reflect"
 
 	"github.com/gorilla/mux"
 )
@@ -19,17 +17,19 @@ func UserViews(w http.ResponseWriter, r *http.Request) {
 
 	claims := r.Context().Value(JWTContextKey).(types.Claims)
 
-	db, _ := models.Connection()
+	db, err := models.Connection()
+	if err != nil {
+		http.Redirect(w, r, "/internalServerError", http.StatusSeeOther)
+	}
 	defer db.Close()
 
-	data := bookQueries.GetBooksOnViewMode(db, viewMode, claims)
-	if reflect.DeepEqual(data, types.UserViewData{}) {
-		// If got no data
-		fmt.Fprintf(w, "No data. Might be due to an invalid viewMode or error in fetching books.")
-	} else {
-		t := views.UserDashboard()
-		t.Execute(w, data)
+	data, err := bookQueries.GetBooksOnViewMode(db, viewMode, claims)
+	if err != nil {
+		http.Redirect(w, r, "/internalServerError", http.StatusSeeOther)
 	}
+
+	t := views.UserDashboard()
+	t.Execute(w, data)
 }
 
 func RequestBook(w http.ResponseWriter, r *http.Request) {
@@ -38,10 +38,16 @@ func RequestBook(w http.ResponseWriter, r *http.Request) {
 
 	claims := r.Context().Value(JWTContextKey).(types.Claims)
 
-	db, _ := models.Connection()
+	db, err := models.Connection()
+	if err != nil {
+		http.Redirect(w, r, "/internalServerError", http.StatusSeeOther)
+	}
 	defer db.Close()
 
-	requestQueries.AddIssueRequest(db, bookId, claims.Id)
+	err = requestQueries.AddIssueRequest(db, bookId, claims.Id)
+	if err != nil {
+		http.Redirect(w, r, "/internalServerError", http.StatusSeeOther)
+	}
 
 	http.Redirect(w, r, "/userDashboard/requested", http.StatusSeeOther)
 
@@ -53,10 +59,16 @@ func RequestReturnBook(w http.ResponseWriter, r *http.Request) {
 
 	claims := r.Context().Value(JWTContextKey).(types.Claims)
 
-	db, _ := models.Connection()
+	db, err := models.Connection()
+	if err != nil {
+		http.Redirect(w, r, "/internalServerError", http.StatusSeeOther)
+	}
 	defer db.Close()
 
-	requestQueries.AddReturnRequest(db, bookId, claims.Id)
+	err = requestQueries.AddReturnRequest(db, bookId, claims.Id)
+	if err != nil {
+		http.Redirect(w, r, "/internalServerError", http.StatusSeeOther)
+	}
 
 	http.Redirect(w, r, "/userDashboard/toBeReturned", http.StatusSeeOther)
 }

@@ -7,8 +7,16 @@ import (
 
 func GetJWT(username string, password string) (string, types.Err, bool) {
 	// Returns jwt, error, isAdmin
-	db, _ := Connection()
-	rows := utils.ExecSql(db, "select * from users where username=?", username)
+	db, err := Connection()
+	if err != nil {
+		return "", types.Err{ErrMsg: "Error connecting to db"}, false
+	}
+
+	rows, err := utils.ExecSql(db, "select * from users where username=?", username)
+	if err != nil {
+		return "", types.Err{ErrMsg: "Error fetching users"}, false
+	}
+
 	defer rows.Close()
 	defer db.Close()
 
@@ -22,7 +30,7 @@ func GetJWT(username string, password string) (string, types.Err, bool) {
 		}
 
 		passMatch := utils.MatchPassword(password, userData.Hash)
-		if passMatch{
+		if passMatch {
 			token := utils.GenerateJWT(userData)
 			isAdmin := userData.Admin != 0
 			return token, types.Err{}, isAdmin

@@ -30,10 +30,10 @@ func LoadConfig() (types.YamlConfig, error) {
 	return config, nil
 }
 
-func ExecSql(db *sql.DB, query string, args ...interface{}) *sql.Rows {
+func ExecSql(db *sql.DB, query string, args ...interface{}) (*sql.Rows, error) {
 	rows, err := db.Query(query, args...)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
-	return rows
+	return rows, nil
 }
