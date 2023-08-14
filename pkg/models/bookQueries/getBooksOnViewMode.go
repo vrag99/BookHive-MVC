@@ -13,7 +13,7 @@ func GetBooksOnViewMode(db *sql.DB, viewMode string, claims types.Claims) (types
 			select b.*
 			from books b
 			inner join requests r on b.id = r.bookId
-			where r.status = 'request-issue' and r.userId = ? and b.availableQuantity>=1;
+			where r.status = 'request-issue' and r.userId = ? and b.availableQuantity>=0;
 		`, claims.Id)
 		if err != nil {
 			log.Printf("Error getting the requested books for issue: %v", err)
@@ -36,7 +36,7 @@ func GetBooksOnViewMode(db *sql.DB, viewMode string, claims types.Claims) (types
 			select b.*
 			from books b
 			inner join requests r on b.id = r.bookId
-			where r.status = 'issued' and r.userId = ? and b.availableQuantity>=1;
+			where r.status = 'issued' and r.userId = ? and b.availableQuantity>=0;
 		`, claims.Id)
 		if err != nil {
 			log.Printf("Error getting the issued books: %v", err)
@@ -59,7 +59,7 @@ func GetBooksOnViewMode(db *sql.DB, viewMode string, claims types.Claims) (types
 			select b.*
 			from books b
 			inner join requests r on b.id = r.bookId
-			where r.status = 'request-return' and r.userId = ? and b.availableQuantity>=1;
+			where r.status = 'request-return' and r.userId = ? and b.availableQuantity>=0;
 		`, claims.Id)
 		if err != nil {
 			log.Printf("Error getting the requested books for return: %v", err)
