@@ -3,11 +3,7 @@ package utils
 import (
 	"BookHive/pkg/types"
 	"fmt"
-	"net/http"
-	"strings"
 	"time"
-
-	"golang.org/x/exp/slices"
 
 	"github.com/golang-jwt/jwt/v4"
 )
@@ -59,29 +55,4 @@ func DecodeJWT(tokenStr string) (jwt.MapClaims, error) {
 	}
 
 	return claims, nil
-}
-
-func ValidateJWT(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		goThroughUrls := []string{"/", "/register", "/login"}
-		if slices.Contains(goThroughUrls, r.URL.Path) || strings.Split(r.URL.Path, "/")[1] == "static" {
-			next.ServeHTTP(w, r)
-			return
-		}
-
-		cookie, err := r.Cookie("access-token")
-		if err == nil {
-			// Cookie exists
-			token := cookie.Value
-			claims, err := DecodeJWT(token)
-			if err != nil {
-				fmt.Println(claims)
-				http.Redirect(w, r, "/", http.StatusSeeOther)
-			}
-
-			next.ServeHTTP(w, r)
-		} else {
-			http.Redirect(w, r, "/", http.StatusSeeOther)
-		}
-	})
 }

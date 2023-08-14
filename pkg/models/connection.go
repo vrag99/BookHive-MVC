@@ -5,6 +5,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"log"
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -35,7 +36,7 @@ func Connection() (*sql.DB, error) {
 	// Opening the connection
 	db, err := sql.Open("mysql", dsn)
 	if err != nil {
-		fmt.Printf("Error: '%s' when opening DB", err)
+		log.Fatalf("Error: '%s' when opening DB", err)
 		return nil, err
 	}
 
@@ -48,7 +49,7 @@ func Connection() (*sql.DB, error) {
 	defer cancelfunc()
 	err = db.PingContext(ctx)
 	if err != nil {
-		fmt.Printf("Error: '%s' occured while pinging DB", err)
+		log.Fatalf("Error: '%s' occured while pinging DB", err)
 		return nil, err
 	}
 	return db, err
