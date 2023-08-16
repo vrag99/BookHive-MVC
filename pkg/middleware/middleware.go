@@ -1,4 +1,4 @@
-package controller
+package middleware
 
 import (
 	"BookHive/pkg/models"

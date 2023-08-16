@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"BookHive/pkg/middleware"
 	"BookHive/pkg/models"
 	"BookHive/pkg/models/bookQueries"
 	"BookHive/pkg/models/requestQueries"
@@ -15,7 +16,7 @@ func UserViews(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	viewMode := vars["viewMode"]
 
-	claims := r.Context().Value(JWTContextKey).(types.Claims)
+	claims := r.Context().Value(middleware.JWTContextKey).(types.Claims)
 
 	db, err := models.Connection()
 	if err != nil {
@@ -36,7 +37,7 @@ func RequestBook(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	bookId := vars["id"]
 
-	claims := r.Context().Value(JWTContextKey).(types.Claims)
+	claims := r.Context().Value(middleware.JWTContextKey).(types.Claims)
 
 	db, err := models.Connection()
 	if err != nil {
@@ -57,7 +58,7 @@ func RequestReturnBook(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	bookId := vars["id"]
 
-	claims := r.Context().Value(JWTContextKey).(types.Claims)
+	claims := r.Context().Value(middleware.JWTContextKey).(types.Claims)
 
 	db, err := models.Connection()
 	if err != nil {

@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"BookHive/pkg/middleware"
 	"BookHive/pkg/models"
 	"BookHive/pkg/models/bookQueries"
 	"BookHive/pkg/models/requestQueries"
@@ -15,7 +16,7 @@ import (
 )
 
 func AdminViews(w http.ResponseWriter, r *http.Request) {
-	claims := r.Context().Value(JWTContextKey).(types.Claims)
+	claims := r.Context().Value(middleware.JWTContextKey).(types.Claims)
 
 	db, err := models.Connection()
 	if err != nil {
@@ -128,7 +129,7 @@ func IssueRequests(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, action := vars["id"], vars["action"]
 
-	claims := r.Context().Value(JWTContextKey).(types.Claims)
+	claims := r.Context().Value(middleware.JWTContextKey).(types.Claims)
 
 	db, err := models.Connection()
 	if err != nil {
@@ -173,7 +174,7 @@ func ReturnRequests(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, action := vars["id"], vars["action"]
 
-	claims := r.Context().Value(JWTContextKey).(types.Claims)
+	claims := r.Context().Value(middleware.JWTContextKey).(types.Claims)
 
 	db, err := models.Connection()
 	if err != nil {
@@ -217,7 +218,7 @@ func AdminRequests(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	action, id := vars["action"], vars["id"]
 
-	claims := r.Context().Value(JWTContextKey).(types.Claims)
+	claims := r.Context().Value(middleware.JWTContextKey).(types.Claims)
 
 	db, err := models.Connection()
 	if err != nil {

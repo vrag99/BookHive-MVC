@@ -2,6 +2,7 @@ package api
 
 import (
 	"BookHive/pkg/controller"
+	"BookHive/pkg/middleware"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -15,7 +16,7 @@ func Run() {
 	router.PathPrefix("/static/").Handler(s)
 
 	// Middleware for validating jwt
-	router.Use(controller.ValidateJWT)
+	router.Use(middleware.ValidateJWT)
 
 	// Handling home page
 	router.HandleFunc("/", controller.HomePage).Methods("GET")
@@ -31,8 +32,8 @@ func Run() {
 	adminRouter := router.PathPrefix("/adminDashboard").Subrouter()
 	userRouter := router.PathPrefix("/userDashboard").Subrouter()
 
-	adminRouter.Use(controller.CheckForAdmin(true))
-	userRouter.Use(controller.CheckForAdmin(false))
+	adminRouter.Use(middleware.CheckForAdmin(true))
+	userRouter.Use(middleware.CheckForAdmin(false))
 
 	// Handling UserDashboard
 	userRouter.HandleFunc("", controller.UserViews).Methods("GET")
@@ -59,7 +60,7 @@ func Run() {
 
 	//403
 	router.HandleFunc("/forbiddenRequest", controller.ForbiddenRequest).Methods("GET")
-	
+
 	//500
 	router.HandleFunc("/internalServerError", controller.InternalServerError).Methods("GET")
 
