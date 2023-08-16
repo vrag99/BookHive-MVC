@@ -83,3 +83,6 @@ pip install mysql-connector-python
 pip install bcrypt
 
 python3 ./scripts/addAdmin.py
+
+go mod tidy
+go mod vendor
