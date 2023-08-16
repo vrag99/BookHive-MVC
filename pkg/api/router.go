@@ -3,6 +3,7 @@ package api
 import (
 	"BookHive/pkg/controller"
 	"BookHive/pkg/middleware"
+	"fmt"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -64,5 +65,6 @@ func Run() {
 	//500
 	router.HandleFunc("/internalServerError", controller.InternalServerError).Methods("GET")
 
+	fmt.Println("Listening on http://localhost:3000")
 	http.ListenAndServe(":3000", router)
 }
